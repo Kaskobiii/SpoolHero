@@ -16,6 +16,7 @@ public partial class AdminMaterials : IDisposable
     private const int PageSize = 50;
     private bool _loading = true;
     private bool _syncing;
+    private bool _catalogEnabled = true;
     private int _page;
     private OfdSyncResultDto? _syncResult;
     private List<FilamentMaterialDto> _allMaterials = [];
@@ -57,6 +58,7 @@ public partial class AdminMaterials : IDisposable
     private async Task LoadAsync()
     {
         _loading = true;
+        _catalogEnabled = (await Admin.GetMaterialCatalogSettingsAsync())?.OpenFilamentDbEnabled ?? true;
         _allMaterials = await AdminMat.GetAllAsync() ?? [];
         ApplyFilter();
         _loading = false;

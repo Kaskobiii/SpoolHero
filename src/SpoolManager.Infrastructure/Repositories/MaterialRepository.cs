@@ -6,13 +6,13 @@ namespace SpoolManager.Infrastructure.Repositories;
 
 public interface IMaterialRepository
 {
-    Task<List<FilamentMaterial>> GetAllAsync(Guid projectId, string? search = null);
-    Task<List<FilamentMaterial>> SearchAsync(Guid projectId, string query, int limit = 250);
-    Task<int> CountAsync(Guid projectId);
-    Task<(List<(FilamentMaterial Material, bool HasActiveSpool)> Items, int TotalCount)> GetPagedAsync(Guid projectId, int page, int pageSize, string? type = null, string? brand = null, string? color = null, string? sortBy = null, bool sortAsc = true);
-    Task<List<string>> GetDistinctTypesAsync(Guid projectId);
-    Task<List<string>> GetDistinctBrandsAsync(Guid projectId);
-    Task<List<string>> GetDistinctColorsAsync(Guid projectId);
+    Task<List<FilamentMaterial>> GetAllAsync(Guid projectId, string? search = null, bool includeGlobal = true);
+    Task<List<FilamentMaterial>> SearchAsync(Guid projectId, string query, int limit = 250, bool includeGlobal = true);
+    Task<int> CountAsync(Guid projectId, bool includeGlobal = true);
+    Task<(List<(FilamentMaterial Material, bool HasActiveSpool)> Items, int TotalCount)> GetPagedAsync(Guid projectId, int page, int pageSize, string? type = null, string? brand = null, string? color = null, string? sortBy = null, bool sortAsc = true, Guid? favoriteUserId = null, bool includeGlobal = true);
+    Task<List<string>> GetDistinctTypesAsync(Guid projectId, bool includeGlobal = true);
+    Task<List<string>> GetDistinctBrandsAsync(Guid projectId, bool includeGlobal = true);
+    Task<List<string>> GetDistinctColorsAsync(Guid projectId, bool includeGlobal = true);
     Task<List<FilamentMaterial>> GetGlobalAsync(string? search = null);
     Task<FilamentMaterial?> GetByIdAsync(Guid id);
     Task<Guid> CreateAsync(FilamentMaterial material);
@@ -32,9 +32,9 @@ public class MaterialRepository : IMaterialRepository
         _db = db;
     }
 
-    public async Task<List<FilamentMaterial>> GetAllAsync(Guid projectId, string? search = null)
+    public async Task<List<FilamentMaterial>> GetAllAsync(Guid projectId, string? search = null, bool includeGlobal = true)
     {
-        var query = _db.FilamentMaterials.Where(m => m.ProjectId == projectId || m.ProjectId == null);
+        var query = _db.FilamentMaterials.Where(m => m.ProjectId == projectId || (includeGlobal && m.ProjectId == null));
 
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(m => m.Brand.Contains(search) || m.Type.Contains(search));
@@ -42,9 +42,9 @@ public class MaterialRepository : IMaterialRepository
         return await query.OrderBy(m => m.Brand).ThenBy(m => m.Type).ToListAsync();
     }
 
-    public async Task<List<FilamentMaterial>> SearchAsync(Guid projectId, string query, int limit = 250)
+    public async Task<List<FilamentMaterial>> SearchAsync(Guid projectId, string query, int limit = 250, bool includeGlobal = true)
     {
-        var baseQuery = _db.FilamentMaterials.Where(m => m.ProjectId == projectId || m.ProjectId == null);
+        var baseQuery = _db.FilamentMaterials.Where(m => m.ProjectId == projectId || (includeGlobal && m.ProjectId == null));
 
         var terms = query.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         foreach (var term in terms)
@@ -60,16 +60,25 @@ public class MaterialRepository : IMaterialRepository
             .ToListAsync();
     }
 
-    public async Task<int> CountAsync(Guid projectId) =>
-        await _db.FilamentMaterials.CountAsync(m => m.ProjectId == projectId || m.ProjectId == null);
+    public async Task<int> CountAsync(Guid projectId, bool includeGlobal = true) =>
+        await _db.FilamentMaterials.CountAsync(m => m.ProjectId == projectId || (includeGlobal && m.ProjectId == null));
 
-    public async Task<(List<(FilamentMaterial Material, bool HasActiveSpool)> Items, int TotalCount)> GetPagedAsync(Guid projectId, int page, int pageSize, string? type = null, string? brand = null, string? color = null, string? sortBy = null, bool sortAsc = true)
+    public async Task<(List<(FilamentMaterial Material, bool HasActiveSpool)> Items, int TotalCount)> GetPagedAsync(Guid projectId, int page, int pageSize, string? type = null, string? brand = null, string? color = null, string? sortBy = null, bool sortAsc = true, Guid? favoriteUserId = null, bool includeGlobal = true)
     {
         var activeSpoolMaterialIds = _db.Spools
             .Where(s => s.ProjectId == projectId && s.ConsumedAt == null)
             .Select(s => s.FilamentMaterialId);
 
-        var baseQuery = _db.FilamentMaterials.Where(m => m.ProjectId == projectId || m.ProjectId == null);
+        var baseQuery = _db.FilamentMaterials.Where(m => m.ProjectId == projectId || (includeGlobal && m.ProjectId == null));
+
+        // Filter before counting and paging so favorites on other catalogue pages are included.
+        if (favoriteUserId.HasValue)
+        {
+            var favoriteIds = _db.UserMaterialFavorites
+                .Where(f => f.UserId == favoriteUserId.Value)
+                .Select(f => f.MaterialId);
+            baseQuery = baseQuery.Where(m => favoriteIds.Contains(m.Id));
+        }
 
         if (!string.IsNullOrWhiteSpace(type))
             baseQuery = baseQuery.Where(m => m.Type == type);
@@ -96,30 +105,30 @@ public class MaterialRepository : IMaterialRepository
             _                   => withFlag.OrderByDescending(x => x.HasActiveSpool).ThenBy(x => x.Material.Brand).ThenBy(x => x.Material.Type),
         };
 
-        var rows = await ordered.Skip(page * pageSize).Take(pageSize).ToListAsync();
+        var rows = await ordered.ThenBy(x => x.Material.Id).Skip(page * pageSize).Take(pageSize).ToListAsync();
         return (rows.Select(x => (x.Material, x.HasActiveSpool)).ToList(), totalCount);
     }
 
-    public async Task<List<string>> GetDistinctTypesAsync(Guid projectId) =>
+    public async Task<List<string>> GetDistinctTypesAsync(Guid projectId, bool includeGlobal = true) =>
         await _db.FilamentMaterials
-            .Where(m => m.ProjectId == projectId || m.ProjectId == null)
+            .Where(m => m.ProjectId == projectId || (includeGlobal && m.ProjectId == null))
             .Select(m => m.Type)
             .Distinct()
             .OrderBy(t => t)
             .ToListAsync();
 
-    public async Task<List<string>> GetDistinctBrandsAsync(Guid projectId) =>
+    public async Task<List<string>> GetDistinctBrandsAsync(Guid projectId, bool includeGlobal = true) =>
         await _db.FilamentMaterials
-            .Where(m => m.ProjectId == projectId || m.ProjectId == null)
+            .Where(m => m.ProjectId == projectId || (includeGlobal && m.ProjectId == null))
             .Select(m => m.Brand)
             .Where(b => b != "")
             .Distinct()
             .OrderBy(b => b)
             .ToListAsync();
 
-    public async Task<List<string>> GetDistinctColorsAsync(Guid projectId) =>
+    public async Task<List<string>> GetDistinctColorsAsync(Guid projectId, bool includeGlobal = true) =>
         await _db.FilamentMaterials
-            .Where(m => m.ProjectId == projectId || m.ProjectId == null)
+            .Where(m => m.ProjectId == projectId || (includeGlobal && m.ProjectId == null))
             .Where(m => m.ColorName != null && m.ColorName != "")
             .Select(m => m.ColorName!)
             .Distinct()

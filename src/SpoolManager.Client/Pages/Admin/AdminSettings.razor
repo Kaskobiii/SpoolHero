@@ -29,6 +29,26 @@ else
                     <label class="form-check-label" for="landingEnabled"></label>
                 </div>
             </div>
+            @if (_materialCatalog != null)
+            {
+                <div class="d-flex align-items-center justify-content-between gap-3 border-top mt-3 pt-3">
+                    <div>
+                        <label class="fw-semibold" for="openFilamentDbEnabled">@L["admin.settings.catalog.label"]</label>
+                        <div class="text-muted small">@L["admin.settings.catalog.hint"]</div>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="openFilamentDbEnabled"
+                               @bind="_materialCatalog.OpenFilamentDbEnabled"
+                               @bind:after="SaveMaterialCatalogAsync" disabled="@_catalogSaving" />
+                    </div>
+                </div>
+                @if (_catalogSuccess != null)
+                {
+                    <div class="alert @(_catalogSuccess == true ? "alert-success" : "alert-danger") py-2 mt-3 mb-0" role="status">
+                        @L[_catalogSuccess == true ? "common.success" : "common.error"]
+                    </div>
+                }
+            }
         </div>
     </div>
 

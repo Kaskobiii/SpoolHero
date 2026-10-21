@@ -19,23 +19,26 @@ public class MaterialsController : ControllerBase
     private readonly IMaterialExportService _exportService;
     private readonly IOrcaExportService _orcaExport;
     private readonly IAuditService _audit;
+    private readonly IMaterialCatalogSettings _catalogSettings;
     private ProjectMember ProjectMember => (ProjectMember)HttpContext.Items["ProjectMember"]!;
     private string? UserName => User.FindFirst(ClaimTypes.Name)?.Value;
     private Guid UserId => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
     private string? ClientIp => HttpContext.Connection.RemoteIpAddress?.ToString();
 
     public MaterialsController(IMaterialRepository materials, IMaterialExportService exportService,
-        IOrcaExportService orcaExport, IAuditService audit)
+        IOrcaExportService orcaExport, IAuditService audit, IMaterialCatalogSettings catalogSettings)
     {
         _materials = materials;
         _exportService = exportService;
         _orcaExport = orcaExport;
         _audit = audit;
+        _catalogSettings = catalogSettings;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] string? search, [FromQuery] string? ids)
     {
+        var includeGlobal = await _catalogSettings.IsOpenFilamentDbEnabledAsync();
         if (!string.IsNullOrWhiteSpace(ids))
         {
             var idList = new List<Guid>();
@@ -45,20 +48,22 @@ public class MaterialsController : ControllerBase
                     idList.Add(parsed);
             }
             var byIds = await _materials.GetByIdsAsync(idList);
-            return Ok(byIds.Where(m => m.ProjectId == null || m.ProjectId == ProjectMember.ProjectId).Select(MapToDto));
+            return Ok(byIds.Where(m => m.ProjectId == ProjectMember.ProjectId || (includeGlobal && m.ProjectId == null)).Select(MapToDto));
         }
-        var materials = await _materials.GetAllAsync(ProjectMember.ProjectId, search);
+        var materials = await _materials.GetAllAsync(ProjectMember.ProjectId, search, includeGlobal);
         return Ok(materials.Select(MapToDto));
     }
 
     [HttpGet("paged")]
-    public async Task<IActionResult> GetPaged([FromQuery] int page = 0, [FromQuery] int pageSize = 50, [FromQuery] string? type = null, [FromQuery] string? brand = null, [FromQuery] string? color = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortAsc = true)
+    public async Task<IActionResult> GetPaged([FromQuery] int page = 0, [FromQuery] int pageSize = 50, [FromQuery] string? type = null, [FromQuery] string? brand = null, [FromQuery] string? color = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortAsc = true, [FromQuery] bool favoritesOnly = false)
     {
+        page = Math.Max(0, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
-        var (items, totalCount) = await _materials.GetPagedAsync(ProjectMember.ProjectId, page, pageSize, type, brand, color, sortBy, sortAsc);
-        var types = await _materials.GetDistinctTypesAsync(ProjectMember.ProjectId);
-        var brands = await _materials.GetDistinctBrandsAsync(ProjectMember.ProjectId);
-        var colors = await _materials.GetDistinctColorsAsync(ProjectMember.ProjectId);
+        var includeGlobal = await _catalogSettings.IsOpenFilamentDbEnabledAsync();
+        var (items, totalCount) = await _materials.GetPagedAsync(ProjectMember.ProjectId, page, pageSize, type, brand, color, sortBy, sortAsc, favoritesOnly ? UserId : null, includeGlobal);
+        var types = await _materials.GetDistinctTypesAsync(ProjectMember.ProjectId, includeGlobal);
+        var brands = await _materials.GetDistinctBrandsAsync(ProjectMember.ProjectId, includeGlobal);
+        var colors = await _materials.GetDistinctColorsAsync(ProjectMember.ProjectId, includeGlobal);
         return Ok(new PaginatedResult<MaterialSummaryDto>
         {
             Items = items.Select(x => MapToSummary(x.Material, x.HasActiveSpool)).ToList(),
@@ -74,13 +79,15 @@ public class MaterialsController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(q))
             return Ok(Array.Empty<FilamentMaterialDto>());
-        var materials = await _materials.SearchAsync(ProjectMember.ProjectId, q, Math.Min(limit, 250));
+        var includeGlobal = await _catalogSettings.IsOpenFilamentDbEnabledAsync();
+        var materials = await _materials.SearchAsync(ProjectMember.ProjectId, q, Math.Clamp(limit, 1, 250), includeGlobal);
         return Ok(materials.Select(MapToDto));
     }
 
     [HttpGet("count")]
     public async Task<IActionResult> Count() =>
-        Ok(new { count = await _materials.CountAsync(ProjectMember.ProjectId) });
+        Ok(new { count = await _materials.CountAsync(ProjectMember.ProjectId,
+            await _catalogSettings.IsOpenFilamentDbEnabledAsync()) });
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
@@ -162,6 +169,7 @@ public class MaterialsController : ControllerBase
     public async Task<IActionResult> Export([FromQuery] string? ids)
     {
         List<FilamentMaterial> materials;
+        var includeGlobal = await _catalogSettings.IsOpenFilamentDbEnabledAsync();
 
         if (!string.IsNullOrWhiteSpace(ids))
         {
@@ -173,11 +181,11 @@ public class MaterialsController : ControllerBase
                 idList.Add(parsed);
             }
             var all = await _materials.GetByIdsAsync(idList);
-            materials = all.Where(m => m.ProjectId == null || m.ProjectId == ProjectMember.ProjectId).ToList();
+            materials = all.Where(m => m.ProjectId == ProjectMember.ProjectId || (includeGlobal && m.ProjectId == null)).ToList();
         }
         else
         {
-            materials = await _materials.GetAllAsync(ProjectMember.ProjectId);
+            materials = await _materials.GetAllAsync(ProjectMember.ProjectId, includeGlobal: includeGlobal);
         }
 
         var dtos = materials.Select(MapToDto).ToList();
@@ -189,6 +197,7 @@ public class MaterialsController : ControllerBase
     public async Task<IActionResult> ExportOrca([FromQuery] string? ids)
     {
         List<FilamentMaterial> materials;
+        var includeGlobal = await _catalogSettings.IsOpenFilamentDbEnabledAsync();
 
         if (!string.IsNullOrWhiteSpace(ids))
         {
@@ -200,11 +209,11 @@ public class MaterialsController : ControllerBase
                 idList.Add(parsed);
             }
             var all = await _materials.GetByIdsAsync(idList);
-            materials = all.Where(m => m.ProjectId == null || m.ProjectId == ProjectMember.ProjectId).ToList();
+            materials = all.Where(m => m.ProjectId == ProjectMember.ProjectId || (includeGlobal && m.ProjectId == null)).ToList();
         }
         else
         {
-            materials = await _materials.GetAllAsync(ProjectMember.ProjectId);
+            materials = await _materials.GetAllAsync(ProjectMember.ProjectId, includeGlobal: includeGlobal);
         }
 
         if (materials.Count == 0)

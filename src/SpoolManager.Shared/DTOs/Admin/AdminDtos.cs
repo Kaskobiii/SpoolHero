@@ -46,6 +46,11 @@ public class SetLandingPageRequest
     public bool Enabled { get; set; }
 }
 
+public class MaterialCatalogSettingsDto
+{
+    public bool OpenFilamentDbEnabled { get; set; } = true;
+}
+
 public class SmtpSettingsDto
 {
     public string Host { get; set; } = string.Empty;

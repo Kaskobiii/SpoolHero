@@ -135,6 +135,17 @@ else
                         <input class="form-control" type="url" @bind="_form.ReorderUrl" />
                     </div>
                     <div class="mb-3">
+                        <label class="form-label" for="spool-owner">@L["spool.owner"]</label>
+                        <select id="spool-owner" class="form-select" @bind="_form.OwnerId">
+                            <option value="">@L["owner.unassigned"]</option>
+                            @foreach (var owner in _owners)
+                            {
+                                <option value="@owner.Id">@owner.Name</option>
+                            }
+                        </select>
+                        <a class="form-text d-inline-block" href="/owners">@L["owner.manage"]</a>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">@L["spool.notes"] @L["common.optional"]</label>
                         <textarea class="form-control" rows="3" @bind="_form.Notes"></textarea>
                     </div>

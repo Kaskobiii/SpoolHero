@@ -23,6 +23,8 @@ public class Spool
     public DateTime? PurchasedAt { get; set; }
     public decimal? PurchasePrice { get; set; }
     public string? ReorderUrl { get; set; }
+    public Guid? OwnerId { get; set; }
+    public SpoolOwner? Owner { get; set; }
     public string? Notes { get; set; }
     public DateTime? LowSpoolNotifiedAt { get; set; }
     public DateTime CreatedAt { get; set; }

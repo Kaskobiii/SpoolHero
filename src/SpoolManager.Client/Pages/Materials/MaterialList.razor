@@ -146,6 +146,10 @@ else
                                 <a href="/materials/@m.Id/edit" class="btn btn-sm btn-outline-secondary">
                                     <i class="bi bi-pencil"></i>
                                 </a>
+                                <a href="/materials/@m.Id/color-variant" class="btn btn-sm btn-outline-primary"
+                                   title="@L["material.color.variant"]" aria-label="@L["material.color.variant"]">
+                                    <i class="bi bi-palette"></i>
+                                </a>
                                 <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmDelete(m)">
                                     <i class="bi bi-trash"></i>
                                 </button>

@@ -41,7 +41,7 @@ public class MaterialService
         return result.ToList();
     }
 
-    public async Task<PaginatedResult<MaterialSummaryDto>> GetPagedAsync(int page = 0, int pageSize = 50, string? type = null, string? brand = null, string? color = null, string? sortBy = null, bool sortAsc = true)
+    public async Task<PaginatedResult<MaterialSummaryDto>> GetPagedAsync(int page = 0, int pageSize = 50, string? type = null, string? brand = null, string? color = null, string? sortBy = null, bool sortAsc = true, bool favoritesOnly = false)
     {
         var qs = new List<string> { $"page={page}", $"pageSize={pageSize}" };
         if (!string.IsNullOrWhiteSpace(type))
@@ -54,6 +54,8 @@ public class MaterialService
             qs.Add($"sortBy={Uri.EscapeDataString(sortBy)}");
         if (!sortAsc)
             qs.Add("sortAsc=false");
+        if (favoritesOnly)
+            qs.Add("favoritesOnly=true");
         return await _http.GetFromJsonAsync<PaginatedResult<MaterialSummaryDto>>($"api/materials/paged?{string.Join("&", qs)}")
             ?? new PaginatedResult<MaterialSummaryDto>();
     }

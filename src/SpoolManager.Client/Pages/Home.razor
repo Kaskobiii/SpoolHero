@@ -138,6 +138,16 @@ else
                             <div class="remaining-bar-fill @GetBarClass(spool.RemainingPercent)" style="width: @((int)spool.RemainingPercent)%"></div>
                         </div>
                         <small class="text-muted">@spool.RemainingWeightGrams g (@spool.RemainingPercent%)</small>
+                        <div class="small text-body mt-2 owner-label">
+                            <span class="fw-semibold">@L["spool.owner"]:</span> @(spool.OwnerName ?? L["owner.unassigned"])
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(spool.Notes))
+                        {
+                            <div class="spool-notes small text-body mt-2">
+                                <span class="fw-semibold">@L["spool.notes"]:</span>
+                                <span class="spool-notes-text">@spool.Notes</span>
+                            </div>
+                        }
                     </div>
                 </a>
             </div>

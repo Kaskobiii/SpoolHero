@@ -9,6 +9,7 @@ public class SpoolManagerDb : DataConnection
     public SpoolManagerDb(DataOptions<SpoolManagerDb> options) : base(options.Options) { }
 
     public ITable<FilamentMaterial> FilamentMaterials => this.GetTable<FilamentMaterial>();
+    public ITable<SpoolOwner> SpoolOwners => this.GetTable<SpoolOwner>();
     public ITable<Spool> Spools => this.GetTable<Spool>();
     public ITable<Printer> Printers => this.GetTable<Printer>();
     public ITable<StorageLocation> StorageLocations => this.GetTable<StorageLocation>();

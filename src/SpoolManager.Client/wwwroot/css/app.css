@@ -152,6 +152,19 @@
     transition: box-shadow 0.15s ease;
 }
 
+.owner-label,
+.owner-group-heading {
+    overflow-wrap: anywhere;
+}
+
+.spool-notes {
+    overflow-wrap: anywhere;
+}
+
+.spool-notes-text {
+    white-space: pre-line;
+}
+
 .spool-card:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }

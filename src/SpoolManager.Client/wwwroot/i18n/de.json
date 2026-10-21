@@ -1,4 +1,24 @@
 {
+  "material.color.variant": "Farbvariante hinzufügen",
+  "material.color.variant.hint": "Die gespeicherten Materialeinstellungen wurden übernommen. Wähle die neue Farbe und passe abweichende Werte an.",
+  "material.color.save.next": "Speichern & weitere Farbe hinzufügen",
+  "material.color.saved": "{0} gespeichert. Wähle die nächste Farbe; alle anderen Einstellungen bleiben erhalten.",
+  "material.invalid.required": "Gib einen Materialtyp und eine Marke an.",
+  "material.invalid.color": "Gib eine sechsstellige Hex-Farbe ein, zum Beispiel FF6400.",
+  "material.load.error": "Das Material konnte nicht geladen werden. Kehre zur Materialliste zurück und versuche es erneut.",
+  "material.save.error": "Das Material konnte nicht gespeichert werden. Bitte versuche es erneut.",
+  "spool.owner": "Besitzer",
+  "owner.title": "Besitzer",
+  "owner.manage": "Besitzer verwalten",
+  "owner.unassigned": "Nicht zugewiesen",
+  "owner.name": "Name des Besitzers",
+  "owner.add": "Besitzer hinzufügen",
+  "owner.edit": "Besitzer bearbeiten",
+  "owner.empty": "Noch keine Besitzer. Füge einen Besitzer hinzu, um Spulen zuzuweisen.",
+  "owner.description": "Besitzer werden innerhalb dieses Projekts geteilt. Eine Umbenennung aktualisiert alle zugehörigen Spulen.",
+  "owner.required": "Gib einen Namen mit bis zu 100 Zeichen ein.",
+  "owner.duplicate": "Ein Besitzer mit diesem Namen existiert bereits.",
+  "owner.saved": "Besitzer gespeichert.",
   "app.name": "SpoolHero",
   "nav.dashboard": "Dashboard",
   "nav.spools": "Spulen",
@@ -567,5 +587,9 @@
 
   "auth.terms.accept": "Ich akzeptiere die",
   "auth.privacy.accept": "Ich habe die",
-  "auth.terms.required": "Bitte akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung."
+  "auth.terms.required": "Bitte akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung.",
+
+  "admin.settings.catalog.label": "OpenFilamentDB-Materialien anzeigen",
+  "admin.settings.catalog.hint": "Deaktivieren, um in Materiallisten und der Materialauswahl nur im jeweiligen Projekt erstellte Materialien anzuzeigen. Bestehende Spulen behalten ihre Materialien. Die Katalogsynchronisierung wird ebenfalls deaktiviert.",
+  "admin.settings.catalog.disabled": "OpenFilamentDB ist deaktiviert. Globale Materialien werden in den Materiallisten und der Materialauswahl der Projekte ausgeblendet; bestehende Spulen behalten ihre Materialien. Zur Aktivierung der Katalogsynchronisierung öffne"
 }

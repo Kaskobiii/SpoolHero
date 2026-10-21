@@ -1,8 +1,8 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY SpoolManager.sln ./
-RUN echo '{"sdk":{"version":"10.0.100-preview.7","rollForward":"latestPatch","allowPrerelease":true}}' > global.json
+COPY global.json ./
 COPY src/SpoolManager.Shared/SpoolManager.Shared.csproj src/SpoolManager.Shared/
 COPY src/SpoolManager.Infrastructure/SpoolManager.Infrastructure.csproj src/SpoolManager.Infrastructure/
 COPY src/SpoolManager.Client/SpoolManager.Client.csproj src/SpoolManager.Client/
@@ -12,7 +12,7 @@ RUN dotnet restore
 COPY src/ src/
 RUN dotnet publish src/SpoolManager.Server/SpoolManager.Server.csproj -c Release -o /app --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*

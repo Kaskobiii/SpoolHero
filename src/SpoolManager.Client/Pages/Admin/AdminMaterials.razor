@@ -11,7 +11,7 @@ else
     <div class="page-header">
         <h1><i class="bi bi-shield-check me-2"></i>@L["admin.materials.title"]</h1>
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary" @onclick="SyncOfdAsync" disabled="@_syncing">
+            <button class="btn btn-outline-secondary" @onclick="SyncOfdAsync" disabled="@(_syncing || !_catalogEnabled)">
                 @if (_syncing) { <span class="spinner-border spinner-border-sm me-2"></span> }
                 <i class="bi bi-cloud-download me-1"></i>@L["admin.ofd.sync.button"]
             </button>
@@ -26,6 +26,13 @@ else
         <div class="alert alert-success alert-dismissible">
             @L["admin.ofd.sync.result"].Replace("{0}", _syncResult.Created.ToString()).Replace("{1}", _syncResult.Updated.ToString()).Replace("{2}", _syncResult.Skipped.ToString())
             <button type="button" class="btn-close" @onclick="() => _syncResult = null"></button>
+        </div>
+    }
+
+    @if (!_catalogEnabled)
+    {
+        <div class="alert alert-info">
+            @L["admin.settings.catalog.disabled"] <a href="/admin/settings">@L["admin.settings.title"]</a>
         </div>
     }
 

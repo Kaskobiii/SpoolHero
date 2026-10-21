@@ -1,0 +1,60 @@
+@page "/owners"
+
+<PageTitle>@L["owner.title"] – @L["app.name"]</PageTitle>
+
+<div class="page-header">
+    <h1><i class="bi bi-people me-2" aria-hidden="true"></i>@L["owner.title"]</h1>
+</div>
+<p class="text-muted">@L["owner.description"]</p>
+
+@if (_error != null)
+{
+    <div class="alert alert-danger" role="alert">@_error</div>
+}
+@if (_saved)
+{
+    <div class="alert alert-success" role="status">@L["owner.saved"]</div>
+}
+
+@if (_loading)
+{
+    <div class="text-center py-5"><div class="spinner-border" role="status"><span class="visually-hidden">@L["common.loading"]</span></div></div>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="h5">@L[_editingId.HasValue ? "owner.edit" : "owner.add"]</h2>
+            <form @onsubmit="SaveAsync" @onsubmit:preventDefault>
+                <label class="form-label" for="owner-name">@L["owner.name"]</label>
+                <input id="owner-name" class="form-control mb-3" @bind="_name" maxlength="100" required disabled="@_saving" />
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" disabled="@_saving">@L[_editingId.HasValue ? "common.save" : "owner.add"]</button>
+                    @if (_editingId.HasValue)
+                    {
+                        <button type="button" class="btn btn-secondary" @onclick="CancelEdit" disabled="@_saving">@L["common.cancel"]</button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (_owners.Count == 0)
+    {
+        <p class="text-muted">@L["owner.empty"]</p>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var owner in _owners)
+            {
+                <div class="list-group-item d-flex justify-content-between align-items-center gap-3" @key="owner.Id">
+                    <span class="owner-label">@owner.Name</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary flex-shrink-0" @onclick="() => Edit(owner)" disabled="@_saving" aria-label="@(L["owner.edit"] + ": " + owner.Name)">
+                        <i class="bi bi-pencil me-1" aria-hidden="true"></i>@L["common.edit"]
+                    </button>
+                </div>
+            }
+        </div>
+    }
+}

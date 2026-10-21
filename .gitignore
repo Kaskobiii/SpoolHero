@@ -48,3 +48,7 @@ Thumbs.db
 *.aider
 CLAUDE.md
 CURSOR.md
+
+# Python regression checks
+__pycache__/
+*.pyc

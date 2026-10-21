@@ -87,6 +87,12 @@ public class AdminService
     public Task<HttpResponseMessage> SetLandingPageEnabledAsync(bool enabled) =>
         _http.PutAsJsonAsync("api/admin/settings/landing-page", new SetLandingPageRequest { Enabled = enabled });
 
+    public Task<MaterialCatalogSettingsDto?> GetMaterialCatalogSettingsAsync() =>
+        _http.GetFromJsonAsync<MaterialCatalogSettingsDto>("api/admin/settings/material-catalog");
+
+    public Task<HttpResponseMessage> SaveMaterialCatalogSettingsAsync(MaterialCatalogSettingsDto dto) =>
+        _http.PutAsJsonAsync("api/admin/settings/material-catalog", dto);
+
     public Task<HttpResponseMessage> SyncOfdAsync() =>
         _http.PostAsync("api/admin/ofd-sync", null);
 

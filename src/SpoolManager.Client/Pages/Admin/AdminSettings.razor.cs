@@ -10,9 +10,39 @@ public partial class AdminSettings
     [Inject] private AdminService Admin { get; set; } = default!;
     [Inject] private AuthService Auth { get; set; } = default!;
     [Inject] private BrandingService Branding { get; set; } = default!;
+    [Inject] private MaterialService Materials { get; set; } = default!;
     [Inject] private LocalizationService L { get; set; } = default!;
 
     private bool _landingEnabled = true;
+    private MaterialCatalogSettingsDto? _materialCatalog;
+    private bool _catalogSaving;
+    private bool? _catalogSuccess;
+
+    private async Task SaveMaterialCatalogAsync()
+    {
+        if (_materialCatalog == null)
+            return;
+        _catalogSaving = true;
+        _catalogSuccess = null;
+        try
+        {
+            var response = await Admin.SaveMaterialCatalogSettingsAsync(_materialCatalog);
+            _catalogSuccess = response.IsSuccessStatusCode;
+            if (response.IsSuccessStatusCode)
+                Materials.InvalidateCache();
+            else
+                _materialCatalog.OpenFilamentDbEnabled = !_materialCatalog.OpenFilamentDbEnabled;
+        }
+        catch
+        {
+            _materialCatalog.OpenFilamentDbEnabled = !_materialCatalog.OpenFilamentDbEnabled;
+            _catalogSuccess = false;
+        }
+        finally
+        {
+            _catalogSaving = false;
+        }
+    }
 
     private async Task SaveLandingPageAsync()
     {
@@ -152,6 +182,7 @@ public partial class AdminSettings
         if (Auth.CurrentUser?.IsPlatformAdmin != true)
             return;
         _landingEnabled = Branding.LandingPageEnabled;
+        _materialCatalog = await Admin.GetMaterialCatalogSettingsAsync();
         _smtp = await Admin.GetSmtpSettingsAsync() ?? new SmtpSettingsDto();
         _smtpLoading = false;
         _legal = await Admin.GetLegalSettingsAsync() ?? new LegalSettingsDto();

@@ -167,6 +167,13 @@ public static class SpoolManagerMappings
             .Property(x => x.CreatedAt).HasColumnName("created_at")
             .Property(x => x.UpdatedAt).HasColumnName("updated_at");
 
+        builder.Entity<SpoolOwner>()
+            .HasTableName("spool_owners")
+            .HasPrimaryKey(x => x.Id)
+            .Property(x => x.Id).HasColumnName("id")
+            .Property(x => x.ProjectId).HasColumnName("project_id")
+            .Property(x => x.Name).HasColumnName("name");
+
         builder.Entity<Spool>()
             .HasTableName("spools")
             .HasPrimaryKey(x => x.Id)
@@ -188,6 +195,8 @@ public static class SpoolManagerMappings
             .Property(x => x.PurchasePrice).HasColumnName("purchase_price")
             .Property(x => x.ReorderUrl).HasColumnName("reorder_url")
             .Property(x => x.Notes).HasColumnName("notes")
+            .Property(x => x.OwnerId).HasColumnName("owner_id")
+            .Property(x => x.Owner).IsNotColumn()
             .Property(x => x.LowSpoolNotifiedAt).HasColumnName("low_spool_notified_at")
             .Property(x => x.CreatedAt).HasColumnName("created_at")
             .Property(x => x.UpdatedAt).HasColumnName("updated_at")

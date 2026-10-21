@@ -2,6 +2,15 @@
 
 SpoolHero is a self-hosted filament management tool for 3D printing. It allows you to track spools, materials, storage locations, and drying cycles across multiple printers and projects. NFC tags (OpenSpool standard) can be written and read directly from the browser on Android.
 
+## Custom features in this fork
+
+- **Owners:** Open **Spools & Material → Owners** to add or rename the people sharing a printer. Select **Owner** when adding or editing a spool. The Spools page groups spools alphabetically by owner, followed by **Unassigned**. Renaming an owner updates all their spools. Existing spools start unassigned; notes are retained and displayed separately.
+- **Color variants:** Use the palette action on a material, or **Add color variant** in its editor, to copy its settings into a new color. **Save & add another color** keeps those settings for the next color. Each color is a separate material for tracking.
+- **Favorites:** The favorites filter applies before pagination, so favorites from every material page appear with accurate totals.
+- **Project-only materials:** Disable **Show OpenFilamentDB materials** in **Admin → Settings → General** to hide the global catalog in material lists and pickers. The setting persists across restarts.
+
+See [CUSTOMIZATIONS.md](CUSTOMIZATIONS.md) for upgrades and verification.
+
 ## Features
 
 - Spool tracking with weight, color, material, and location
@@ -19,9 +28,9 @@ SpoolHero is a self-hosted filament management tool for 3D printing. It allows y
 The easiest way to run SpoolHero is with Docker Compose:
 
 ```bash
-git clone https://github.com/Fewiel/SpoolHero.git
+git clone https://github.com/Kaskobiii/SpoolHero.git
 cd SpoolHero
-docker compose up -d
+docker compose up -d --build
 ```
 
 SpoolHero will be available at `http://localhost:5000`. A MySQL 8 database is included and configured automatically.
@@ -40,6 +49,8 @@ Set environment variables in a `.env` file next to `docker-compose.yml`:
 MYSQL_ROOT_PASSWORD=YourSecureDatabasePassword
 JWT_SECRET_KEY=YourRandomStringAtLeast32Characters
 ```
+
+The OpenFilamentDB catalog is enabled by default. To use only materials created in your own project, open **Admin → Settings → General** and turn off **Show OpenFilamentDB materials**. This setting is saved in the database and takes effect in material lists, searches, favorites, and spool material pickers. It also disables catalog syncing. Existing spools keep their material information, and turning the catalog back on restores the global materials without another import.
 
 ### HTTPS (required for NFC on Android)
 

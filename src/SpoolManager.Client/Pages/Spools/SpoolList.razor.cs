@@ -108,6 +108,7 @@ public partial class SpoolList : IDisposable
             PurchasedAt = spool.PurchasedAt,
             PurchasePrice = spool.PurchasePrice,
             ReorderUrl = spool.ReorderUrl,
+            OwnerId = spool.OwnerId,
             Notes = spool.Notes
         });
         if (resp.IsSuccessStatusCode)

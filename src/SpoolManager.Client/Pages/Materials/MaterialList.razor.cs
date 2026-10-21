@@ -60,7 +60,7 @@ public partial class MaterialList
             string.IsNullOrWhiteSpace(_typeFilter) ? null : _typeFilter,
             string.IsNullOrWhiteSpace(_brandFilter) ? null : _brandFilter,
             string.IsNullOrWhiteSpace(_colorFilter) ? null : _colorFilter,
-            _sortCol, _sortAsc);
+            _sortCol, _sortAsc, _favoritesOnly);
 
         _items = result.Items.ToArray();
         _totalCount = result.TotalCount;
@@ -68,8 +68,13 @@ public partial class MaterialList
         _brands = result.Brands;
         _colors = result.Colors;
 
-        if (_favoritesOnly)
-            _items = _items.Where(m => Favorites.IsFavorite(m.Id)).ToArray();
+        // Removing the last item on a page can move the final page backwards.
+        if (_page >= TotalPages)
+        {
+            _page = TotalPages - 1;
+            await LoadAsync();
+            return;
+        }
 
         _loading = false;
         StateHasChanged();
@@ -79,7 +84,7 @@ public partial class MaterialList
     {
         await Favorites.ToggleAsync(id);
         if (_favoritesOnly)
-            _items = _items.Where(m => Favorites.IsFavorite(m.Id)).ToArray();
+            await LoadAsync();
     }
 
     private async Task OnFavoritesFilterChanged()

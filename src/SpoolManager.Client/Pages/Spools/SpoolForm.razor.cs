@@ -5,6 +5,7 @@ using SpoolManager.Shared.DTOs.Dryers;
 using SpoolManager.Shared.DTOs.Materials;
 using SpoolManager.Shared.DTOs.Printers;
 using SpoolManager.Shared.DTOs.Spools;
+using SpoolManager.Shared.DTOs.Owners;
 using SpoolManager.Shared.DTOs.Storage;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -14,6 +15,7 @@ namespace SpoolManager.Client.Pages.Spools;
 public partial class SpoolForm
 {
     [Parameter] public Guid? Id { get; set; }
+    [Inject] private OwnerService Owners { get; set; } = default!;
     [Inject] private SpoolService Spools { get; set; } = default!;
     [Inject] private MaterialService Materials { get; set; } = default!;
     [Inject] private PrinterService Printers { get; set; } = default!;
@@ -30,6 +32,7 @@ public partial class SpoolForm
     private string? _error;
     private CreateSpoolRequest _form = new() { RemainingPercent = 100 };
     private FilamentMaterialDto? _selectedMaterial;
+    private List<OwnerDto> _owners = [];
     private List<PrinterDto> _printers = [];
     private List<StorageLocationDto> _storages = [];
     private List<DryerDto> _dryerList = [];
@@ -47,7 +50,9 @@ public partial class SpoolForm
         var pt = Printers.GetAllAsync();
         var st = Storage.GetAllAsync();
         var dt = Dryers.GetAllAsync();
-        await Task.WhenAll(pt, st, dt);
+        var ot = Owners.GetAllAsync();
+        await Task.WhenAll(pt, st, dt, ot);
+        _owners = await ot ?? [];
         _printers = await pt ?? [];
         _storages = await st ?? [];
         _dryerList = await dt ?? [];
@@ -67,6 +72,7 @@ public partial class SpoolForm
                 _form.PurchasePrice = spool.PurchasePrice;
                 _form.RfidTagUid = spool.RfidTagUid;
                 _form.ReorderUrl = spool.ReorderUrl;
+                _form.OwnerId = spool.OwnerId;
                 _form.Notes = spool.Notes;
             }
         }
@@ -241,6 +247,7 @@ public partial class SpoolForm
                 PurchasedAt = _form.PurchasedAt,
                 PurchasePrice = _form.PurchasePrice,
                 ReorderUrl = _form.ReorderUrl,
+                OwnerId = _form.OwnerId,
                 Notes = _form.Notes
             });
         }

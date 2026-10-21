@@ -2,6 +2,7 @@ namespace SpoolManager.Shared.DTOs.Spools;
 
 public class SpoolDto
 {
+    public string? OwnerName { get; set; }
     public Guid Id { get; set; }
     public Guid ProjectId { get; set; }
     public Guid FilamentMaterialId { get; set; }
@@ -27,6 +28,7 @@ public class SpoolDto
     public DateTime? PurchasedAt { get; set; }
     public decimal? PurchasePrice { get; set; }
     public string? ReorderUrl { get; set; }
+    public Guid? OwnerId { get; set; }
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
@@ -44,6 +46,7 @@ public class CreateSpoolRequest
     public DateTime? PurchasedAt { get; set; }
     public decimal? PurchasePrice { get; set; }
     public string? ReorderUrl { get; set; }
+    public Guid? OwnerId { get; set; }
     public string? Notes { get; set; }
 }
 
@@ -59,6 +62,7 @@ public class UpdateSpoolRequest
     public DateTime? PurchasedAt { get; set; }
     public decimal? PurchasePrice { get; set; }
     public string? ReorderUrl { get; set; }
+    public Guid? OwnerId { get; set; }
     public string? Notes { get; set; }
 }
 

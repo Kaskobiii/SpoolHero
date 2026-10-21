@@ -17,14 +17,16 @@ public class SpoolsController : ControllerBase
 {
     private readonly ISpoolRepository _spools;
     private readonly IAuditService _audit;
+    private readonly IOwnerRepository _owners;
     private ProjectMember ProjectMember => (ProjectMember)HttpContext.Items["ProjectMember"]!;
     private string? UserName => User.FindFirst(ClaimTypes.Name)?.Value;
     private Guid UserId => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
     private string? ClientIp => HttpContext.Connection.RemoteIpAddress?.ToString();
 
-    public SpoolsController(ISpoolRepository spools, IAuditService audit)
+    public SpoolsController(ISpoolRepository spools, IAuditService audit, IOwnerRepository owners)
     {
         _spools = spools;
+        _owners = owners;
         _audit = audit;
     }
 
@@ -51,6 +53,8 @@ public class SpoolsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateSpoolRequest request)
     {
+        if (request.OwnerId.HasValue && await _owners.GetByIdAsync(request.OwnerId.Value, ProjectMember.ProjectId) == null)
+            return BadRequest(new { message = "The selected owner does not belong to this project." });
         var spool = new Spool
         {
             ProjectId = ProjectMember.ProjectId,
@@ -64,6 +68,7 @@ public class SpoolsController : ControllerBase
             PurchasedAt = request.PurchasedAt,
             PurchasePrice = request.PurchasePrice,
             ReorderUrl = request.ReorderUrl,
+            OwnerId = request.OwnerId,
             Notes = request.Notes
         };
 
@@ -79,6 +84,10 @@ public class SpoolsController : ControllerBase
         if (spool == null)
             return NotFound();
 
+        if (request.OwnerId.HasValue && await _owners.GetByIdAsync(request.OwnerId.Value, ProjectMember.ProjectId) == null)
+            return BadRequest(new { message = "The selected owner does not belong to this project." });
+
+        spool.OwnerId = request.OwnerId;
         spool.FilamentMaterialId = request.FilamentMaterialId;
         spool.RemainingWeightGrams = request.RemainingWeightGrams;
         spool.RemainingPercent = request.RemainingPercent;
@@ -224,6 +233,8 @@ public class SpoolsController : ControllerBase
         PurchasedAt = s.PurchasedAt,
         PurchasePrice = s.PurchasePrice,
         ReorderUrl = s.ReorderUrl,
+        OwnerId = s.OwnerId,
+        OwnerName = s.Owner?.Name,
         Notes = s.Notes,
         CreatedAt = s.CreatedAt,
         UpdatedAt = s.UpdatedAt

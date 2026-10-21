@@ -72,8 +72,13 @@ public class SpoolRepository : ISpoolRepository
             var dryers = dryerIds.Count > 0 ? await _db.Dryers.Where(d => dryerIds.Contains(d.Id)).ToListAsync() : new List<Dryer>();
             var dryerMap = dryers.ToDictionary(d => d.Id);
 
+            var owners = await _db.SpoolOwners.Where(o => o.ProjectId == projectId).ToListAsync();
+            var ownerMap = owners.ToDictionary(o => o.Id);
+
             foreach (var spool in spools)
             {
+                if (spool.OwnerId.HasValue && ownerMap.TryGetValue(spool.OwnerId.Value, out var owner))
+                    spool.Owner = owner;
                 if (materialMap.TryGetValue(spool.FilamentMaterialId, out var mat))
                     spool.FilamentMaterial = mat;
                 if (spool.PrinterId.HasValue && printerMap.TryGetValue(spool.PrinterId.Value, out var prt))
@@ -104,6 +109,8 @@ public class SpoolRepository : ISpoolRepository
     {
         if (spool == null)
             return null;
+        if (spool.OwnerId.HasValue)
+            spool.Owner = await _db.SpoolOwners.FirstOrDefaultAsync(o => o.Id == spool.OwnerId.Value && o.ProjectId == spool.ProjectId);
         spool.FilamentMaterial = await _db.FilamentMaterials.FirstOrDefaultAsync(m => m.Id == spool.FilamentMaterialId);
         if (spool.PrinterId.HasValue)
             spool.Printer = await _db.Printers.FirstOrDefaultAsync(p => p.Id == spool.PrinterId.Value);

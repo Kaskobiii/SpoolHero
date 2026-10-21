@@ -1,21 +1,39 @@
 @page "/materials/new"
 @page "/materials/{Id:guid}/edit"
+@page "/materials/{Id:guid}/color-variant"
 
-<PageTitle>@(Id.HasValue ? L["material.edit"] : L["material.add"]) – @L["app.name"]</PageTitle>
+<PageTitle>@FormTitle – @L["app.name"]</PageTitle>
 
 <div class="page-header">
-    <h1><i class="bi bi-database me-2"></i>@(Id.HasValue ? L["material.edit"] : L["material.add"])</h1>
+    <h1><i class="bi bi-database me-2"></i>@FormTitle</h1>
+    @if (_isEditing)
+    {
+        <a href="/materials/@Id/color-variant" class="btn btn-outline-primary">
+            <i class="bi bi-palette me-1"></i>@L["material.color.variant"]
+        </a>
+    }
 </div>
 
 @if (_loading) { <div class="text-center py-5"><div class="spinner-border"></div></div> }
+else if (_loadFailed)
+{
+    <div class="alert alert-danger" role="alert">@_error</div>
+    <a href="/materials" class="btn btn-secondary">@L["common.cancel"]</a>
+}
 else
 {
     <div class="row justify-content-center">
         <div class="col-12 col-lg-8">
             <div class="card">
                 <div class="card-body">
-                    @if (_error != null) { <div class="alert alert-danger">@_error</div> }
+                    @if (_error != null) { <div class="alert alert-danger" role="alert">@_error</div> }
+                    @if (_success != null) { <div class="alert alert-success" role="status">@_success</div> }
+                    @if (_isColorVariant)
+                    {
+                        <div class="alert alert-info">@L["material.color.variant.hint"]</div>
+                    }
 
+                    <fieldset disabled="@_saving">
                     <div class="row g-3 mb-3">
                         <div class="col-12 col-md-6">
                             <label class="form-label">@L["material.type"] *</label>
@@ -136,13 +154,20 @@ else
                         <label class="form-check-label" for="isPublic">@L["material.public"]</label>
                     </div>
 
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-wrap gap-2">
                         <button class="btn btn-primary" @onclick="SaveAsync" disabled="@_saving">
                             @if (_saving) { <span class="spinner-border spinner-border-sm me-2"></span> }
                             @L["common.save"]
                         </button>
+                        @if (!_isEditing)
+                        {
+                            <button type="button" class="btn btn-outline-primary" @onclick="() => SaveAsync(true)" disabled="@_saving">
+                                <i class="bi bi-palette me-1"></i>@L["material.color.save.next"]
+                            </button>
+                        }
                         <a href="/materials" class="btn btn-secondary">@L["common.cancel"]</a>
                     </div>
+                    </fieldset>
                 </div>
             </div>
         </div>

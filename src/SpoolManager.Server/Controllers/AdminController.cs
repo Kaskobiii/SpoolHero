@@ -26,13 +26,14 @@ public class AdminController : ControllerBase
     private readonly IEmailService _email;
     private readonly ISiteSettingsRepository _siteSettings;
     private readonly IOfdSyncService _ofdSync;
+    private readonly IMaterialCatalogSettings _materialCatalog;
     private readonly ISuggestionRepository _suggestions;
 
     public AdminController(IMaterialRepository materials, IUserRepository users,
         IProjectRepository projects, ISpoolRepository spools,
         ITicketRepository tickets, IAuditService audit, IEmailService email,
         ISiteSettingsRepository siteSettings, IOfdSyncService ofdSync,
-        ISuggestionRepository suggestions)
+        ISuggestionRepository suggestions, IMaterialCatalogSettings materialCatalog)
     {
         _materials = materials;
         _users = users;
@@ -44,6 +45,7 @@ public class AdminController : ControllerBase
         _siteSettings = siteSettings;
         _ofdSync = ofdSync;
         _suggestions = suggestions;
+        _materialCatalog = materialCatalog;
     }
 
     private bool IsPlatformAdmin() =>
@@ -371,11 +373,35 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
+    [HttpGet("settings/material-catalog")]
+    public async Task<IActionResult> GetMaterialCatalogSettings()
+    {
+        if (!IsPlatformAdmin())
+            return Forbid();
+        return Ok(new MaterialCatalogSettingsDto
+        {
+            OpenFilamentDbEnabled = await _materialCatalog.IsOpenFilamentDbEnabledAsync()
+        });
+    }
+
+    [HttpPut("settings/material-catalog")]
+    public async Task<IActionResult> SetMaterialCatalogSettings([FromBody] MaterialCatalogSettingsDto request)
+    {
+        if (!IsPlatformAdmin())
+            return Forbid();
+        await _materialCatalog.SetOpenFilamentDbEnabledAsync(request.OpenFilamentDbEnabled);
+        await _audit.LogAsync("admin.materials.catalog.update", userId: UserId, username: UserName,
+            details: $"OpenFilamentDB enabled: {request.OpenFilamentDbEnabled}", ipAddress: ClientIp);
+        return NoContent();
+    }
+
     [HttpPost("ofd-sync")]
     public async Task<IActionResult> SyncOfd()
     {
         if (!IsPlatformAdmin())
             return Forbid();
+        if (!await _materialCatalog.IsOpenFilamentDbEnabledAsync())
+            return BadRequest(new { message = "OpenFilamentDB is disabled. Enable it in Admin Settings before syncing." });
         var result = await _ofdSync.SyncAsync();
         await _audit.LogAsync("admin.ofd.sync", userId: UserId, username: UserName,
             details: $"Created: {result.Created}, Updated: {result.Updated}, Skipped: {result.Skipped}",

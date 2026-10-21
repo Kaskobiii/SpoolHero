@@ -1,4 +1,24 @@
 {
+  "material.color.variant": "Add color variant",
+  "material.color.variant.hint": "The saved material settings have been copied. Choose the new color and change any values that differ.",
+  "material.color.save.next": "Save & add another color",
+  "material.color.saved": "Saved {0}. Choose the next color; all other settings are kept.",
+  "material.invalid.required": "Enter a material type and brand.",
+  "material.invalid.color": "Enter a six-digit hexadecimal color, for example FF6400.",
+  "material.load.error": "The material could not be loaded. Return to the material list and try again.",
+  "material.save.error": "The material could not be saved. Please try again.",
+  "spool.owner": "Owner",
+  "owner.title": "Owners",
+  "owner.manage": "Manage owners",
+  "owner.unassigned": "Unassigned",
+  "owner.name": "Owner name",
+  "owner.add": "Add owner",
+  "owner.edit": "Edit owner",
+  "owner.empty": "No owners yet. Add an owner to assign spools to them.",
+  "owner.description": "Owners are shared within this project. Renaming an owner updates all their spools.",
+  "owner.required": "Enter an owner name (up to 100 characters).",
+  "owner.duplicate": "An owner with that name already exists.",
+  "owner.saved": "Owner saved.",
   "app.name": "SpoolHero",
   "nav.dashboard": "Dashboard",
   "nav.spools": "Spools",
@@ -567,5 +587,9 @@
 
   "auth.terms.accept": "I accept the",
   "auth.privacy.accept": "I have read and agree to the",
-  "auth.terms.required": "Please accept the Terms of Use and Privacy Policy."
+  "auth.terms.required": "Please accept the Terms of Use and Privacy Policy.",
+
+  "admin.settings.catalog.label": "Show OpenFilamentDB materials",
+  "admin.settings.catalog.hint": "Disable to show only materials created in each project in material lists and pickers. Existing spools keep their materials. Catalog syncing is disabled too.",
+  "admin.settings.catalog.disabled": "OpenFilamentDB is disabled. Global materials are hidden from project material lists and pickers; existing spools keep their materials. To enable catalog syncing, open"
 }

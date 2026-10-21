@@ -32,12 +32,14 @@ public class FavoriteService
         await EnsureCacheAsync();
         if (_cache!.Contains(materialId))
         {
-            await _http.DeleteAsync($"api/favorites/{materialId}");
+            var response = await _http.DeleteAsync($"api/favorites/{materialId}");
+            response.EnsureSuccessStatusCode();
             _cache.Remove(materialId);
         }
         else
         {
-            await _http.PostAsync($"api/favorites/{materialId}", null);
+            var response = await _http.PostAsync($"api/favorites/{materialId}", null);
+            response.EnsureSuccessStatusCode();
             _cache.Add(materialId);
         }
     }
