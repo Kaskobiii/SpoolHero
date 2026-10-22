@@ -1,0 +1,103 @@
+@page "/backup"
+
+<PageTitle>@L["backup.title"] – @L["app.name"]</PageTitle>
+
+<div class="page-header">
+    <h1><i class="bi bi-cloud-arrow-down me-2" aria-hidden="true"></i>@L["backup.title"]</h1>
+</div>
+
+@if (!Auth.IsAuthenticated)
+{
+    <p>@L["backup.sign.in"]</p>
+    <a class="btn btn-primary" href="/login">@L["auth.login"]</a>
+}
+else
+{
+    <p class="text-muted mb-4">@L["backup.description"]</p>
+    <div class="row g-4">
+        <div class="col-12 col-lg-5">
+            <section class="card h-100" aria-labelledby="backup-export-title">
+                <div class="card-body p-4">
+                    <h2 id="backup-export-title" class="h5"><i class="bi bi-download me-2" aria-hidden="true"></i>@L["backup.export.title"]</h2>
+                    <p>@L["backup.export.description"]</p>
+                    <p class="small text-muted">@L["backup.scope"]</p>
+                    <p class="small text-muted">@L["backup.excludes"]</p>
+                    <button class="btn btn-primary" type="button" @onclick="ExportAsync" disabled="@Busy">
+                        @if (_exporting) { <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span> }
+                        @L["backup.export.all"]
+                    </button>
+                    @if (_exported)
+                    {
+                        <p class="text-success small mt-3 mb-0" role="status"><i class="bi bi-check-circle me-1" aria-hidden="true"></i>@L["backup.export.success"]</p>
+                    }
+                    @if (_exportError != null)
+                    {
+                        <div class="alert alert-danger mt-3 mb-0" role="alert">@_exportError</div>
+                    }
+                </div>
+            </section>
+        </div>
+        <div class="col-12 col-lg-7">
+            <section class="card h-100" aria-labelledby="backup-import-title">
+                <div class="card-body p-4">
+                    <h2 id="backup-import-title" class="h5"><i class="bi bi-upload me-2" aria-hidden="true"></i>@L["backup.import.title"]</h2>
+                    <p>@L["backup.import.description"]</p>
+                    @if (Auth.CurrentUser?.IsPlatformAdmin != true)
+                    {
+                        <p class="text-muted mb-0">@L["backup.import.admin"]</p>
+                    }
+                    else
+                    {
+                    <label for="backup-file" class="form-label">@L["backup.choose"]</label>
+                    <InputFile @key="_fileKey" id="backup-file" class="form-control" OnChange="ChooseBackupAsync"
+                               accept=".json,application/json" disabled="@Busy" aria-describedby="backup-file-hint" />
+                    <p id="backup-file-hint" class="form-text">@L["backup.file.hint"]</p>
+                    @if (_reading)
+                    {
+                        <p class="small text-muted" role="status"><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>@L["backup.reading"]</p>
+                    }
+                    @if (_summary != null)
+                    {
+                        <div class="bg-body-tertiary border rounded p-3 my-3">
+                            <div class="fw-semibold text-break">@_fileName</div>
+                            <p class="small text-muted mb-3">@L.Format("backup.saved", _summary.ExportedAt.ToLocalTime().ToString("g")) · @((_summary.SizeBytes / 1024d / 1024d).ToString("0.##")) MB</p>
+                            <dl class="row g-2 mb-0 small">
+                                <dt class="col-8">@L["project.title"]</dt><dd class="col-4 text-end mb-0">@_summary.ProjectCount</dd>
+                                <dt class="col-8">@L["nav.spools"]</dt><dd class="col-4 text-end mb-0">@_summary.SpoolCount</dd>
+                                <dt class="col-8">@L["nav.materials"]</dt><dd class="col-4 text-end mb-0">@_summary.MaterialCount</dd>
+                                <dt class="col-8">@L["owner.title"]</dt><dd class="col-4 text-end mb-0">@_summary.OwnerCount</dd>
+                                <dt class="col-8">@L["nav.printers"]</dt><dd class="col-4 text-end mb-0">@_summary.PrinterCount</dd>
+                                <dt class="col-8">@L["nav.storage"]</dt><dd class="col-4 text-end mb-0">@_summary.StorageLocationCount</dd>
+                                <dt class="col-8">@L["nav.dryers"]</dt><dd class="col-4 text-end mb-0">@_summary.DryerCount</dd>
+                                <dt class="col-8">@L["backup.favorites"]</dt><dd class="col-4 text-end mb-0">@_summary.FavoriteCount</dd>
+                            </dl>
+                        </div>
+                        @if (_summary.HasCatalogSetting)
+                        {
+                            <div class="form-check mb-3">
+                                <input id="backup-catalog-setting" type="checkbox" class="form-check-input" @bind="_applyCatalogSetting" disabled="@Busy" />
+                                <label for="backup-catalog-setting" class="form-check-label">@L["backup.catalog.setting"]</label>
+                            </div>
+                        }
+                    }
+                    @if (_importError != null)
+                    {
+                        <div class="alert alert-danger my-3" role="alert">@_importError</div>
+                    }
+                    @if (_importResult != null)
+                    {
+                        <div class="alert alert-success my-3" role="status">
+                            <p class="mb-2">@L.Format("backup.import.success", _importResult.ProjectCount, _importResult.SpoolCount)</p>
+                            <a class="alert-link" href="@(_projectSelected ? "/spools" : "/projects")">@L["backup.open.inventory"] <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
+                        </div>
+                    }
+                    <button class="btn btn-primary" type="button" @onclick="ImportAsync" disabled="@(Busy || _file == null)">
+                        @if (_importing) { <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span> }
+                        @L["backup.import.confirm"]
+                    </button>
+                    }
+                </div>
+            </section>
+        </div>
+    </div>
+}

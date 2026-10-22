@@ -102,7 +102,7 @@ public partial class MainLayout
     }
 
     private static readonly string[] AllowedWithoutProject =
-        ["/projects", "/settings", "/admin", "/tickets", "/login", "/register", "/verify-email", "/forgot-password", "/reset-password", "/privacy", "/imprint", "/terms", "/changelog"];
+        ["/projects", "/backup", "/settings", "/admin", "/tickets", "/login", "/register", "/verify-email", "/forgot-password", "/reset-password", "/privacy", "/imprint", "/terms", "/changelog"];
 
     private void CheckProjectRedirect()
     {

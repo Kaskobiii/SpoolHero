@@ -4,9 +4,14 @@
 
 <div class="page-header">
     <h1><i class="bi bi-archive me-2"></i>@L["spool.title"]</h1>
-    <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/spools/new")'>
-        <i class="bi bi-plus-lg me-1"></i>@L["spool.add"]
-    </button>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="/backup" class="btn btn-outline-secondary">
+            <i class="bi bi-download me-1" aria-hidden="true"></i>@L["backup.export.all"]
+        </a>
+        <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/spools/new")'>
+            <i class="bi bi-plus-lg me-1"></i>@L["spool.add"]
+        </button>
+    </div>
 </div>
 
 <div class="row g-2 mb-3">

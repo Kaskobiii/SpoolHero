@@ -20,7 +20,7 @@ Keep the existing Compose project name, database volume, and credentials. Back u
 docker compose up -d --build app
 ```
 
-Migration 17 adds project-scoped owners and an optional owner reference on spools. It runs automatically at startup. Existing spools remain unassigned until you choose an owner. Notes are preserved; owner names are not inferred from notes.
+Migration 18 makes inventory text fully Unicode compatible while preserving IDs and relationships. Migration 17 adds project-scoped owners and an optional owner reference on spools. It runs automatically at startup. Existing spools remain unassigned until you choose an owner. Notes are preserved; owner names are not inferred from notes.
 
 ## Owners
 
@@ -39,6 +39,14 @@ When creating a material or variant, **Save & add another color** saves it and r
 Favorites are filtered on the server before counting and pagination. Other material filters still apply. Removing the last favorite on a page moves back to the last populated page.
 
 The OpenFilamentDB catalog is enabled by default. In **Admin → Settings → General**, disable **Show OpenFilamentDB materials** to show only materials created in each project. This applies to material lists, searches, filter choices, favorites, pickers, and exports, and disables catalog syncing. This is an installation-wide setting saved in the database. Materials used by existing spools are retained. Re-enable the setting to restore catalog visibility.
+
+## Full inventory backup and transfer
+
+Open **Backup & transfer** from your account menu, or **Export all** from the Spools page. The JSON backup contains all projects you administer and their materials, spools, owners, printers, storage, dryers, photos, lifecycle dates, NFC IDs and your relevant material favorites. It includes referenced or favorited global materials, without copying the entire unused catalog.
+
+On a new Docker installation, sign in as the platform administrator, open **Backup & transfer** before creating inventory or syncing the catalog, select the saved file, inspect its counts, and click **Import backup**. Optionally restore the OpenFilamentDB preference. Imported projects belong to the importing account. Conflicting inventory IDs reject the entire import without overwriting data.
+
+Accounts/passwords, memberships/invitations, other users' private favorites, audit/support records and server/email secrets stay with each installation. See [docs/BACKUP.md](docs/BACKUP.md) for the complete procedure and limits.
 
 ## Verification
 
@@ -61,3 +69,5 @@ python3 tests/material_catalog_smoke.py
 These scripts create uniquely named projects and sample data for inspection. The catalog test restores the previous setting. The tests cover owner validation/renaming/assignment/project isolation, favorites across more than 100 materials, and catalog visibility/authorization/persistence/existing spool references. The color-form checks cover copied properties, separate material identities, repeated saves, failures, and transitions between edit/new/variant routes.
 
 The upstream build emits dependency vulnerability warnings and an existing unawaited-call warning. Those dependency upgrades are outside this customization.
+
+A two-instance transfer test is available in `tests/inventory_backup_smoke.py`. Run it only against two disposable instances using the source/destination URL and credential variables described at its top. It checks complete inventory roundtrips, Unicode, images, retained NFC IDs, collision protection, malformed files, and transaction rollback. Optional explicitly named test databases enable real mid-restore failure injection.

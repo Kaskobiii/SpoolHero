@@ -4,6 +4,7 @@ SpoolHero is a self-hosted filament management tool for 3D printing. It allows y
 
 ## Custom features in this fork
 
+- **Backup & transfer:** Use **Export all** to download all inventory from projects you administer, then import it on a fresh installation. Spool IDs, NFC links, images, dates and favorites are preserved. See [the transfer guide](docs/BACKUP.md).
 - **Owners:** Open **Spools & Material → Owners** to add or rename the people sharing a printer. Select **Owner** when adding or editing a spool. The Spools page groups spools alphabetically by owner, followed by **Unassigned**. Renaming an owner updates all their spools. Existing spools start unassigned; notes are retained and displayed separately.
 - **Color variants:** Use the palette action on a material, or **Add color variant** in its editor, to copy its settings into a new color. **Save & add another color** keeps those settings for the next color. Each color is a separate material for tracking.
 - **Favorites:** The favorites filter applies before pagination, so favorites from every material page appear with accurate totals.
