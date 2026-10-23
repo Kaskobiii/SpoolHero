@@ -154,7 +154,7 @@ public class EmailService : IEmailService
         foreach (var u in recipients.Where(r => r.NotifySpoolLow))
         {
             var lang = u.PreferredLanguage;
-            var body = EmailTemplates.SpoolLow(materialName, (double)spool.RemainingPercent, lang);
+            var body = EmailTemplates.SpoolLow(materialName, (double)spool.RemainingWeightGrams, lang);
             var subject = lang == "en"
                 ? $"Spool running low: {materialName}"
                 : $"Spule fast leer: {materialName}";

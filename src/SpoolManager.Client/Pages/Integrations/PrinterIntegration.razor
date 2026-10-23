@@ -1,0 +1,181 @@
+@page "/settings/printer-integration"
+@implements IDisposable
+@using SpoolManager.Shared.DTOs.Integrations
+@inject HttpClient Http
+@inject ProjectService Project
+@inject LocalizationService L
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>@L["nav.printer.connection"] – @L["app.name"]</PageTitle>
+<div class="page-header"><h1><i class="bi bi-plug me-2" aria-hidden="true"></i>@L["nav.printer.connection"]</h1></div>
+<p class="text-muted">@L["integration.description"]</p>
+@if (Project.CurrentProject?.MyRole != "admin")
+{
+    <div class="alert alert-info">@L["integration.admin.required"]</div>
+}
+else
+{
+    @if (_error != null) { <div class="alert alert-danger" role="alert">@_error</div> }
+    @if (_loading) { <div class="spinner-border" role="status"><span class="visually-hidden">@L["common.loading"]</span></div> }
+    else if (_status != null)
+    {
+        <div class="card mb-3"><div class="card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+                <div><h2 class="h5">@L["integration.connection"]</h2><span class="badge @(_status.Enabled ? "text-bg-success" : "text-bg-secondary")">@L[_status.Enabled ? "integration.enabled" : "integration.disabled"]</span></div>
+                <button class="btn btn-outline-secondary" @onclick="RefreshAsync" disabled="@_busy"><i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>@L["integration.refresh"]</button>
+            </div>
+            <p>@L["integration.local.hint"]</p>
+            <div class="d-flex gap-2 flex-wrap">
+                @if (!_status.Enabled)
+                { <button class="btn btn-primary" @onclick="() => CreateAsync(false)" disabled="@_busy">@L["integration.create"]</button> }
+                else if (_confirmAction == null)
+                {
+                    <button class="btn btn-outline-primary" @onclick='() => _confirmAction = "rotate"' disabled="@_busy">@L["integration.replace"]</button>
+                    <button class="btn btn-outline-danger" @onclick='() => _confirmAction = "disable"' disabled="@_busy">@L["integration.disable"]</button>
+                }
+                else
+                {
+                    <div class="alert alert-warning w-100 mb-0">
+                        <p>@L[_confirmAction == "rotate" ? "integration.replace.hint" : "integration.disable.hint"]</p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-danger" @onclick="ConfirmAsync" disabled="@_busy">@L["common.confirm"]</button>
+                            <button class="btn btn-secondary" @onclick="() => _confirmAction = null" disabled="@_busy">@L["common.cancel"]</button>
+                        </div>
+                    </div>
+                }
+            </div>
+            @if (_connectionPath != null)
+            {
+                <div class="mt-4" role="status">
+                    <h3 class="h6">@L["integration.address.title"]</h3>
+                    <p class="small text-muted">@L["integration.address.secret"]</p>
+                    <label for="printer-server-address" class="form-label">@L["integration.server.address"]</label>
+                    <input id="printer-server-address" class="form-control mb-2" type="url" inputmode="url" @bind="_serverAddress" @bind:event="oninput" placeholder="http://192.168.1.100:8080" />
+                    <label for="printer-connection-address" class="form-label">@L["integration.copy.address"]</label>
+                    <textarea id="printer-connection-address" class="form-control font-monospace mb-2" rows="3" readonly aria-describedby="printer-address-help">@ConnectionAddress</textarea>
+                    <button class="btn btn-primary" @onclick="CopyAsync" disabled="@(!ValidServerAddress)"><i class="bi bi-clipboard me-1" aria-hidden="true"></i>@L[_copied ? "integration.copied" : "integration.copy"]</button>
+                    <p id="printer-address-help" class="small text-muted mt-2 mb-0">@L["integration.address.help"]</p>
+                </div>
+            }
+            else if (_status.Enabled)
+            { <p class="small text-muted mt-3 mb-0">@L["integration.existing.address"]</p> }
+            @if (_status.Enabled)
+            {
+                <dl class="row mt-4 mb-0">
+                    <dt class="col-12 col-sm-5">@L["integration.last.seen"]</dt><dd class="col-12 col-sm-7">@DateLabel(_status.LastSeenAt)</dd>
+                    <dt class="col-12 col-sm-5">@L["integration.last.usage"]</dt><dd class="col-12 col-sm-7">@DateLabel(_status.LastUsageAt)</dd>
+                    <dt class="col-12 col-sm-5">@L["integration.connections"]</dt><dd class="col-12 col-sm-7">@_status.ConnectedPrinters</dd>
+                </dl>
+            }
+        </div></div>
+        <div class="card mb-3"><div class="card-body">
+            <h2 class="h5">@L["integration.setup.title"]</h2>
+            <ol class="mb-0 ps-3">
+                <li class="mb-2">@L["integration.setup.1"]</li>
+                <li class="mb-2">@L["integration.setup.2"]</li>
+                <li class="mb-2">@L["integration.setup.3"]</li>
+                <li>@L["integration.setup.4"]</li>
+            </ol>
+        </div></div>
+        <div class="card"><div class="card-body">
+            <h2 class="h5">@L["integration.spools.title"]</h2>
+            <p class="text-muted small">@L["integration.spools.hint"]</p>
+            @if (_status.Spools.Count > 1000) { <div class="alert alert-warning">@L["integration.spools.limit"]</div> }
+            @if (_status.Spools.Count == 0) { <p class="mb-0">@L[_status.Enabled ? "integration.spools.empty" : "integration.spools.disabled"]</p> }
+            else
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var spool in _status.Spools.OrderBy(s => s.MaterialName).ThenBy(s => s.Id))
+                    {
+                        <div class="list-group-item px-0" @key="spool.SpoolId">
+                            <div class="d-flex justify-content-between flex-wrap gap-2"><a href="@($"/spools/{spool.SpoolId}")" class="text-break">@spool.MaterialName</a><span class="text-muted">#@spool.Id · @spool.RemainingWeightGrams.ToString("0.##") g</span></div>
+                            <div class="small text-muted text-break mt-1">@L["integration.tags"]: @(spool.CardUids.Length == 0 ? L["integration.no.tags"] : string.Join(", ", spool.CardUids))</div>
+                            @if (!spool.CanTrackUsage) { <div class="small text-warning mt-1"><i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>@L["integration.material.incomplete"]</div> }
+                        </div>
+                    }
+                </div>
+            }
+        </div></div>
+    }
+}
+
+@code {
+    private SpoolmanIntegrationStatusDto? _status;
+    private bool _loading = true, _busy, _copied;
+    private string? _error, _connectionPath, _confirmAction;
+    private string _serverAddress = "";
+    private bool ValidServerAddress => Uri.TryCreate(_serverAddress.Trim(), UriKind.Absolute, out var uri)
+        && (uri.Scheme == "http" || uri.Scheme == "https") && string.IsNullOrEmpty(uri.UserInfo)
+        && uri.AbsolutePath == "/" && string.IsNullOrEmpty(uri.Query) && string.IsNullOrEmpty(uri.Fragment);
+    private string ConnectionAddress => ValidServerAddress ? _serverAddress.Trim().TrimEnd('/') + _connectionPath : "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _serverAddress = new Uri(Navigation.BaseUri).GetLeftPart(UriPartial.Authority);
+        Project.OnProjectChanged += ProjectChanged;
+        await RefreshAsync();
+    }
+    private void ProjectChanged()
+    {
+        _connectionPath = null;
+        _status = null;
+        _confirmAction = null;
+        _ = InvokeAsync(RefreshAsync);
+    }
+    private async Task RefreshAsync()
+    {
+        _error = null;
+        try
+        {
+            if (Project.CurrentProject?.MyRole != "admin") return;
+            using var response = await Http.GetAsync("api/integrations/spoolman");
+            if (!response.IsSuccessStatusCode) { _error = await BackupService.GetErrorAsync(response, L["common.error"]); return; }
+            _status = await response.Content.ReadFromJsonAsync<SpoolmanIntegrationStatusDto>();
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException) { _error = L["common.error"]; }
+        finally { _loading = false; }
+    }
+    private async Task CreateAsync(bool rotate)
+    {
+        if (_busy) return;
+        _busy = true;
+        _error = null;
+        try
+        {
+            using var response = await Http.PostAsync("api/integrations/spoolman/" + (rotate ? "rotate" : "enable"), null);
+            if (!response.IsSuccessStatusCode) { _error = await BackupService.GetErrorAsync(response, L["common.error"]); return; }
+            var result = await response.Content.ReadFromJsonAsync<SpoolmanConnectionDto>();
+            _connectionPath = result?.ConnectionPath;
+            _copied = false;
+            _confirmAction = null;
+            await RefreshAsync();
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException) { _error = L["common.error"]; }
+        finally { _busy = false; }
+    }
+    private async Task ConfirmAsync()
+    {
+        if (_confirmAction == "rotate") { await CreateAsync(true); return; }
+        if (_busy) return;
+        _busy = true;
+        try
+        {
+            using var response = await Http.DeleteAsync("api/integrations/spoolman");
+            if (!response.IsSuccessStatusCode) { _error = await BackupService.GetErrorAsync(response, L["common.error"]); return; }
+            _connectionPath = null;
+            _confirmAction = null;
+            await RefreshAsync();
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException) { _error = L["common.error"]; }
+        finally { _busy = false; }
+    }
+    private async Task CopyAsync()
+    {
+        if (!ValidServerAddress) return;
+        try { await JS.InvokeVoidAsync("navigator.clipboard.writeText", ConnectionAddress); _copied = true; }
+        catch (JSException) { _error = L["integration.copy.manual"]; }
+    }
+    private string DateLabel(DateTime? value) => value.HasValue ? value.Value.ToLocalTime().ToString("g") : L["integration.not.yet"];
+    public void Dispose() => Project.OnProjectChanged -= ProjectChanged;
+}

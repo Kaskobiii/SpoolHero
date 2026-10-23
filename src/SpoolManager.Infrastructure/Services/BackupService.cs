@@ -53,6 +53,10 @@ public class BackupService(SpoolManagerDb db, IMaterialCatalogSettings catalogSe
             Dryers = await db.Dryers.Where(d => projectIds.Contains(d.ProjectId)).OrderBy(d => d.Id).ToListAsync(),
             MaterialFavorites = favorites.Where(f => materialIds.Contains(f.MaterialId))
                 .Select(f => new BackupFavoriteDto { MaterialId = f.MaterialId, CreatedAt = f.CreatedAt }).ToList(),
+            SpoolmanProjects = (await db.SpoolmanIntegrations.Where(m => projectIds.Contains(m.ProjectId)).ToListAsync())
+                .Select(m => new BackupSpoolmanProjectDto { ProjectId = m.ProjectId, NextSpoolId = m.NextSpoolId }).ToList(),
+            SpoolmanMappings = (await db.SpoolmanSpools.Where(m => projectIds.Contains(m.ProjectId)).OrderBy(m => m.Id).ToListAsync())
+                .Select(m => new BackupSpoolmanMapDto { ProjectId = m.ProjectId, Id = m.Id, SpoolId = m.SpoolId, CardUids = m.CardUids, UsageRemainderGrams = m.UsageRemainderGrams }).ToList(),
             OpenFilamentDbEnabled = includeCatalogSetting ? await catalogSettings.IsOpenFilamentDbEnabledAsync() : null
         };
         Validate(document);
@@ -88,7 +92,22 @@ public class BackupService(SpoolManagerDb db, IMaterialCatalogSettings catalogSe
         foreach (var printer in document.Printers) await db.InsertAsync(printer);
         foreach (var location in document.StorageLocations) await db.InsertAsync(location);
         foreach (var dryer in document.Dryers) await db.InsertAsync(dryer);
-        foreach (var spool in document.Spools) await db.InsertAsync(FromBackupSpool(spool));
+        var importedMaterials = document.Materials.ToDictionary(m => m.Id);
+        foreach (var spool in document.Spools)
+        {
+            // Earlier v1 backups predate per-spool nominal weights.
+            var nominal = importedMaterials[spool.FilamentMaterialId].WeightGrams;
+            spool.InitialWeightGrams ??= nominal is > 0 ? nominal : Math.Max(0, spool.RemainingWeightGrams);
+            await db.InsertAsync(FromBackupSpool(spool));
+        }
+        foreach (var projectId in document.SpoolmanProjects.Select(x => x.ProjectId).Concat(document.SpoolmanMappings.Select(x => x.ProjectId)).Distinct())
+        {
+            var next = document.SpoolmanProjects.FirstOrDefault(x => x.ProjectId == projectId)?.NextSpoolId
+                ?? document.SpoolmanMappings.Where(x => x.ProjectId == projectId).Max(x => x.Id) + 1;
+            await db.InsertAsync(new SpoolmanIntegration { ProjectId = projectId, NextSpoolId = next });
+        }
+        foreach (var m in document.SpoolmanMappings)
+            await db.InsertAsync(new SpoolmanSpoolMap { ProjectId = m.ProjectId, Id = m.Id, SpoolId = m.SpoolId, CardUids = m.CardUids, UsageRemainderGrams = m.UsageRemainderGrams });
         foreach (var favorite in document.MaterialFavorites)
             await db.InsertAsync(new UserMaterialFavorite
             {
@@ -199,6 +218,10 @@ public class BackupService(SpoolManagerDb db, IMaterialCatalogSettings catalogSe
             Related(s.StorageLocationId, s.ProjectId, locations, x => x.ProjectId, "storage location");
             Related(s.DryerId, s.ProjectId, dryers, x => x.ProjectId, "dryer");
             Text(s.RfidTagUid, 256, "spool tag"); Text(s.Notes, 2000, "spool notes"); Text(s.ReorderUrl, 2000, "spool reorder URL");
+            Number(s.InitialWeightGrams, 999_999.99m, 2, "initial filament weight");
+            Number(s.EmptySpoolWeightGrams, 999_999.99m, 2, "empty spool weight");
+            if (s.InitialWeightGrams < 0 || s.EmptySpoolWeightGrams < 0)
+                throw new BackupValidationException("Initial and empty spool weights cannot be negative.");
             Number(s.RemainingWeightGrams, 999_999.99m, 2, "spool remaining weight");
             Number(s.RemainingPercent, 999.99m, 2, "spool remaining percentage");
             Number(s.PurchasePrice, 99_999_999.99m, 2, "spool purchase price");
@@ -207,6 +230,29 @@ public class BackupService(SpoolManagerDb db, IMaterialCatalogSettings catalogSe
             Date(s.ReopenedAt, "spool reopened date"); Date(s.DriedAt, "spool dried date");
             Date(s.ConsumedAt, "spool consumed date"); Date(s.PurchasedAt, "spool purchased date");
             Date(s.LowSpoolNotifiedAt, "spool notification date");
+        }
+        if (d.SpoolmanMappings == null || d.SpoolmanMappings.Count > 100_000)
+            throw new BackupValidationException("Invalid Spoolman mappings collection.");
+        if (d.SpoolmanProjects == null || d.SpoolmanProjects.Count > 100_000)
+            throw new BackupValidationException("Invalid Spoolman projects collection.");
+        var spoolmanProjects = new HashSet<Guid>();
+        foreach (var integration in d.SpoolmanProjects)
+        {
+            if (integration == null || !projects.ContainsKey(integration.ProjectId) || !spoolmanProjects.Add(integration.ProjectId) || integration.NextSpoolId <= 0)
+                throw new BackupValidationException("Invalid or duplicate Spoolman project mapping.");
+        }
+        var mappingIds = new HashSet<(Guid, int)>();
+        var mappedSpools = new HashSet<Guid>();
+        foreach (var map in d.SpoolmanMappings)
+        {
+            if (map == null || map.Id <= 0 || map.Id == int.MaxValue || !mappingIds.Add((map.ProjectId, map.Id)) || !mappedSpools.Add(map.SpoolId) ||
+                !spools.TryGetValue(map.SpoolId, out var spool) || spool.ProjectId != map.ProjectId ||
+                d.SpoolmanProjects.Any(p => p.ProjectId == map.ProjectId && p.NextSpoolId <= map.Id) ||
+                map.UsageRemainderGrams < 0 || map.UsageRemainderGrams >= .01m || decimal.Round(map.UsageRemainderGrams, 10) != map.UsageRemainderGrams)
+                throw new BackupValidationException("Invalid or duplicate Spoolman mapping.");
+            Text(map.CardUids, 2048, "Spoolman card UIDs", true);
+            try { SpoolmanService.ParseUids(map.CardUids); }
+            catch (SpoolmanValidationException error) { throw new BackupValidationException(error.Message); }
         }
         foreach (var f in favorites.Values)
         {
@@ -275,6 +321,7 @@ public class BackupService(SpoolManagerDb db, IMaterialCatalogSettings catalogSe
         Id = s.Id, ProjectId = s.ProjectId, FilamentMaterialId = s.FilamentMaterialId,
         RfidTagUid = s.RfidTagUid, OpenedAt = s.OpenedAt, RepackagedAt = s.RepackagedAt,
         ReopenedAt = s.ReopenedAt, DriedAt = s.DriedAt, ConsumedAt = s.ConsumedAt,
+        InitialWeightGrams = s.InitialWeightGrams, EmptySpoolWeightGrams = s.EmptySpoolWeightGrams,
         RemainingWeightGrams = s.RemainingWeightGrams, RemainingPercent = s.RemainingPercent,
         PrinterId = s.PrinterId, StorageLocationId = s.StorageLocationId, DryerId = s.DryerId,
         PurchasedAt = s.PurchasedAt, PurchasePrice = s.PurchasePrice, ReorderUrl = s.ReorderUrl,
@@ -287,6 +334,7 @@ public class BackupService(SpoolManagerDb db, IMaterialCatalogSettings catalogSe
         Id = s.Id, ProjectId = s.ProjectId, FilamentMaterialId = s.FilamentMaterialId,
         RfidTagUid = s.RfidTagUid, OpenedAt = s.OpenedAt, RepackagedAt = s.RepackagedAt,
         ReopenedAt = s.ReopenedAt, DriedAt = s.DriedAt, ConsumedAt = s.ConsumedAt,
+        InitialWeightGrams = s.InitialWeightGrams, EmptySpoolWeightGrams = s.EmptySpoolWeightGrams,
         RemainingWeightGrams = s.RemainingWeightGrams, RemainingPercent = s.RemainingPercent,
         PrinterId = s.PrinterId, StorageLocationId = s.StorageLocationId, DryerId = s.DryerId,
         PurchasedAt = s.PurchasedAt, PurchasePrice = s.PurchasePrice, ReorderUrl = s.ReorderUrl,

@@ -61,59 +61,88 @@ else
                                         OnSelected="OnMaterialPicked" />
                     </div>
 
-                    <div class="row g-3 mb-3">
-                        <div class="col-6">
-                            <label class="form-label">@L["spool.remaining.grams"] *</label>
-                            <input class="form-control" type="number" step="0.1" min="0"
-                                @bind:get="_form.RemainingWeightGrams"
-                                @bind:set="SetWeight"
-                                @bind:event="oninput" />
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">@L["spool.remaining.percent"] *</label>
-                            <input class="form-control" type="number" step="0.1" min="0" max="100"
-                                @bind:get="_form.RemainingPercent"
-                                @bind:set="SetPercent"
-                                @bind:event="oninput" />
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="spool-remaining-grams">@L["spool.remaining.grams"] *</label>
+                        <input id="spool-remaining-grams" class="form-control" type="number" inputmode="decimal" step="0.1" min="0"
+                               @bind="_form.RemainingWeightGrams" />
                     </div>
 
-                    <h6 class="mb-2 mt-3">@L["spool.location"]</h6>
-                    <div class="row g-3 mb-3">
-                        <div class="col-12 col-md-4">
-                            <label class="form-label">@L["spool.printer"] @L["common.optional"]</label>
-                            <select class="form-select" value="@(_form.PrinterId?.ToString() ?? "")"
-                                    @onchange='e => OnLocationChange("printer", e.Value?.ToString())'>
-                                <option value="">@L["spool.no.printer"]</option>
+                    <div class="mb-3">
+                        <div class="form-text mb-2">@L["spool.remaining.grams.hint"]</div>
+                        <label class="form-label mt-2" for="spool-initial-weight">@L["spool.initial.weight"] @L["common.optional"]</label>
+                        <input id="spool-initial-weight" class="form-control" type="number" inputmode="decimal" step="0.1" min="0"
+                               @bind="_form.InitialWeightGrams" />
+                        <div class="form-text mb-3">@L["spool.initial.weight.hint"]</div>
+                        <label class="form-label" for="spool-empty-weight">@L["spool.empty.weight"] @L["common.optional"]</label>
+                        <input id="spool-empty-weight" class="form-control" type="number" inputmode="decimal" step="0.1" min="0"
+                               @bind="_form.EmptySpoolWeightGrams" />
+                        <div class="form-text">@L["spool.empty.weight.hint"]</div>
+                    </div>
+                    @if (_form.EmptySpoolWeightGrams is >= 0)
+                    {
+                        <div class="border rounded p-3 mb-3">
+                            <label class="form-label" for="spool-weighed-total">@L["spool.weighed.total"]</label>
+                            <div class="d-flex flex-wrap align-items-end gap-2">
+                                <input id="spool-weighed-total" class="form-control spool-weighed-input" type="number" inputmode="decimal" step="0.1" min="0"
+                                       @bind="_weighedTotalGrams" />
+                                <button type="button" class="btn btn-outline-primary" disabled="@(!CanApplyWeighedTotal)" @onclick="ApplyWeighedTotal">@L["spool.calculate.remaining"]</button>
+                            </div>
+                            <div class="form-text">@L["spool.weighed.total.hint"]</div>
+                        </div>
+                    }
+
+                    <fieldset class="mb-3 spool-choice-fieldset">
+                        <legend class="form-label">@L["spool.location"]</legend>
+                        <div class="spool-choice-buttons mb-2">
+                            <button type="button" class="btn spool-choice-button @(HasNoLocation ? "btn-primary" : "btn-outline-secondary")"
+                                    aria-pressed="@(HasNoLocation.ToString().ToLowerInvariant())" @onclick='() => OnLocationChange(null, null)'>
+                                <i class="bi bi-check-lg spool-choice-check" style="visibility:@(HasNoLocation ? "visible" : "hidden")" aria-hidden="true"></i>
+                                <span>@L["spool.location.unassigned"]</span>
+                            </button>
+                        </div>
+                        @if (_printers.Count > 0)
+                        {
+                            <div class="form-label small text-muted mb-1" id="spool-printer-options">@L["spool.printer"]</div>
+                            <div class="spool-choice-buttons mb-2" role="group" aria-labelledby="spool-printer-options">
                                 @foreach (var p in _printers)
                                 {
-                                    <option value="@p.Id">@p.Name</option>
+                                    <button type="button" class="btn spool-choice-button @(_form.PrinterId == p.Id ? "btn-primary" : "btn-outline-secondary")"
+                                            aria-pressed="@((_form.PrinterId == p.Id).ToString().ToLowerInvariant())" @onclick='() => OnLocationChange("printer", p.Id)'>
+                                        <i class="bi bi-check-lg spool-choice-check" style="visibility:@(_form.PrinterId == p.Id ? "visible" : "hidden")" aria-hidden="true"></i>
+                                        <span>@p.Name</span>
+                                    </button>
                                 }
-                            </select>
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <label class="form-label">@L["spool.storage"] @L["common.optional"]</label>
-                            <select class="form-select" value="@(_form.StorageLocationId?.ToString() ?? "")"
-                                    @onchange='e => OnLocationChange("storage", e.Value?.ToString())'>
-                                <option value="">@L["spool.no.storage"]</option>
+                            </div>
+                        }
+                        @if (_storages.Count > 0)
+                        {
+                            <div class="form-label small text-muted mb-1" id="spool-storage-options">@L["spool.storage"]</div>
+                            <div class="spool-choice-buttons mb-2" role="group" aria-labelledby="spool-storage-options">
                                 @foreach (var s in _storages)
                                 {
-                                    <option value="@s.Id">@s.Name</option>
+                                    <button type="button" class="btn spool-choice-button @(_form.StorageLocationId == s.Id ? "btn-primary" : "btn-outline-secondary")"
+                                            aria-pressed="@((_form.StorageLocationId == s.Id).ToString().ToLowerInvariant())" @onclick='() => OnLocationChange("storage", s.Id)'>
+                                        <i class="bi bi-check-lg spool-choice-check" style="visibility:@(_form.StorageLocationId == s.Id ? "visible" : "hidden")" aria-hidden="true"></i>
+                                        <span>@s.Name</span>
+                                    </button>
                                 }
-                            </select>
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <label class="form-label">@L["spool.dryer"] @L["common.optional"]</label>
-                            <select class="form-select" value="@(_form.DryerId?.ToString() ?? "")"
-                                    @onchange='e => OnLocationChange("dryer", e.Value?.ToString())'>
-                                <option value="">@L["spool.no.dryer"]</option>
+                            </div>
+                        }
+                        @if (_dryerList.Count > 0)
+                        {
+                            <div class="form-label small text-muted mb-1" id="spool-dryer-options">@L["spool.dryer"]</div>
+                            <div class="spool-choice-buttons" role="group" aria-labelledby="spool-dryer-options">
                                 @foreach (var d in _dryerList)
                                 {
-                                    <option value="@d.Id">@d.Name</option>
+                                    <button type="button" class="btn spool-choice-button @(_form.DryerId == d.Id ? "btn-primary" : "btn-outline-secondary")"
+                                            aria-pressed="@((_form.DryerId == d.Id).ToString().ToLowerInvariant())" @onclick='() => OnLocationChange("dryer", d.Id)'>
+                                        <i class="bi bi-check-lg spool-choice-check" style="visibility:@(_form.DryerId == d.Id ? "visible" : "hidden")" aria-hidden="true"></i>
+                                        <span>@d.Name</span>
+                                    </button>
                                 }
-                            </select>
-                        </div>
-                    </div>
+                            </div>
+                        }
+                    </fieldset>
 
                     <div class="row g-3 mb-3">
                         <div class="col-12 col-md-6">
@@ -134,23 +163,31 @@ else
                         <label class="form-label">@L["spool.reorder"] @L["common.optional"]</label>
                         <input class="form-control" type="url" @bind="_form.ReorderUrl" />
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="spool-owner">@L["spool.owner"]</label>
-                        <select id="spool-owner" class="form-select" @bind="_form.OwnerId">
-                            <option value="">@L["owner.unassigned"]</option>
+                    <fieldset class="mb-3 spool-choice-fieldset">
+                        <legend class="form-label">@L["spool.owner"]</legend>
+                        <div class="spool-choice-buttons">
+                            <button type="button" class="btn spool-choice-button @(!_form.OwnerId.HasValue ? "btn-primary" : "btn-outline-secondary")"
+                                    aria-pressed="@((!_form.OwnerId.HasValue).ToString().ToLowerInvariant())" @onclick="() => _form.OwnerId = null">
+                                <i class="bi bi-check-lg spool-choice-check" style="visibility:@(!_form.OwnerId.HasValue ? "visible" : "hidden")" aria-hidden="true"></i>
+                                <span>@L["owner.unassigned"]</span>
+                            </button>
                             @foreach (var owner in _owners)
                             {
-                                <option value="@owner.Id">@owner.Name</option>
+                                <button type="button" class="btn spool-choice-button @(_form.OwnerId == owner.Id ? "btn-primary" : "btn-outline-secondary")"
+                                        aria-pressed="@((_form.OwnerId == owner.Id).ToString().ToLowerInvariant())" @onclick="() => _form.OwnerId = owner.Id">
+                                    <i class="bi bi-check-lg spool-choice-check" style="visibility:@(_form.OwnerId == owner.Id ? "visible" : "hidden")" aria-hidden="true"></i>
+                                    <span>@owner.Name</span>
+                                </button>
                             }
-                        </select>
-                        <a class="form-text d-inline-block" href="/owners">@L["owner.manage"]</a>
-                    </div>
+                        </div>
+                        <a class="form-text d-inline-block py-2" href="/owners">@L["owner.manage"]</a>
+                    </fieldset>
                     <div class="mb-3">
                         <label class="form-label">@L["spool.notes"] @L["common.optional"]</label>
                         <textarea class="form-control" rows="3" @bind="_form.Notes"></textarea>
                     </div>
 
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-wrap gap-2">
                         <button class="btn btn-primary" @onclick="SaveAsync" disabled="@_saving">
                             @if (_saving) { <span class="spinner-border spinner-border-sm me-2"></span> }
                             @L["common.save"]

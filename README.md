@@ -133,3 +133,7 @@ For larger features, open an issue first to discuss the approach.
 GNU Affero General Public License v3.0 (AGPL-3.0)
 
 Free to use, modify, and distribute. Any modifications — including running a modified version as a hosted service — must be made available under the same license. See [LICENSE](LICENSE) for details.
+
+### Customized printer connection
+
+This fork supports paxx12 U1 printer usage reporting through a project-scoped Spoolman-compatible connection. Open **Printer connection** in the account menu; see [setup instructions](docs/SPOOLMAN.md). Spool amounts use net grams, with separate original filament and empty reel weights. Owner/location buttons are designed for touch screens. This adapter implements the printer-facing subset of Spoolman, so third-party Spoolman applications are not automatically supported.

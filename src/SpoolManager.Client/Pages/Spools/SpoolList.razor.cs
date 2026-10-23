@@ -102,7 +102,8 @@ public partial class SpoolList : IDisposable
         {
             FilamentMaterialId = spool.FilamentMaterialId,
             RemainingWeightGrams = spool.RemainingWeightGrams,
-            RemainingPercent = spool.RemainingPercent,
+            EmptySpoolWeightGrams = spool.EmptySpoolWeightGrams,
+            InitialWeightGrams = spool.InitialWeightGrams,
             PrinterId = spool.PrinterId,
             StorageLocationId = spool.StorageLocationId,
             PurchasedAt = spool.PurchasedAt,

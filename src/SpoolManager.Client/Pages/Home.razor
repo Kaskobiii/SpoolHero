@@ -137,7 +137,7 @@ else
                         <div class="remaining-bar mb-1">
                             <div class="remaining-bar-fill @GetBarClass(spool.RemainingPercent)" style="width: @((int)spool.RemainingPercent)%"></div>
                         </div>
-                        <small class="text-muted">@spool.RemainingWeightGrams g (@spool.RemainingPercent%)</small>
+                        <small class="text-muted">@spool.RemainingWeightGrams g</small>
                         <div class="small text-body mt-2 owner-label">
                             <span class="fw-semibold">@L["spool.owner"]:</span> @(spool.OwnerName ?? L["owner.unassigned"])
                         </div>

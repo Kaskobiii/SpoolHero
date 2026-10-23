@@ -20,6 +20,8 @@ public class InventoryBackupDocument
     [JsonRequired] public List<StorageLocation> StorageLocations { get; set; } = [];
     [JsonRequired] public List<Dryer> Dryers { get; set; } = [];
     [JsonRequired] public List<BackupFavoriteDto> MaterialFavorites { get; set; } = [];
+    public List<BackupSpoolmanProjectDto> SpoolmanProjects { get; set; } = [];
+    public List<BackupSpoolmanMapDto> SpoolmanMappings { get; set; } = [];
     public bool? OpenFilamentDbEnabled { get; set; }
 }
 
@@ -41,6 +43,8 @@ public class BackupSpoolDto
     public DateTime? ReopenedAt { get; set; }
     public DateTime? DriedAt { get; set; }
     public DateTime? ConsumedAt { get; set; }
+    public decimal? InitialWeightGrams { get; set; }
+    public decimal? EmptySpoolWeightGrams { get; set; }
     public decimal RemainingWeightGrams { get; set; }
     public decimal RemainingPercent { get; set; }
     public Guid? PrinterId { get; set; }
@@ -68,4 +72,21 @@ public class BackupImportResultDto
     public int DryerCount { get; set; }
     public int FavoriteCount { get; set; }
     public bool CatalogSettingApplied { get; set; }
+}
+
+// Project-scoped integers remain stable when moving an inventory to another server.
+// Access tokens are deliberately excluded; enable a new connection after restoring.
+public class BackupSpoolmanMapDto
+{
+    public Guid ProjectId { get; set; }
+    public int Id { get; set; }
+    public Guid SpoolId { get; set; }
+    public string CardUids { get; set; } = "";
+    public decimal UsageRemainderGrams { get; set; }
+}
+
+public class BackupSpoolmanProjectDto
+{
+    public Guid ProjectId { get; set; }
+    public int NextSpoolId { get; set; }
 }

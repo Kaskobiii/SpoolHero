@@ -33,12 +33,7 @@ else if (_prefs != null)
                     <i class="bi bi-thermometer-half me-1 text-success"></i>@L["settings.notifications.dryer.done"]
                 </label>
             </div>
-            <div class="form-check form-switch mb-4">
-                <input class="form-check-input" type="checkbox" id="notifyTicketReply" @bind="_prefs.NotifyTicketReply" />
-                <label class="form-check-label" for="notifyTicketReply">
-                    <i class="bi bi-ticket-perforated me-1 text-primary"></i>@L["settings.notifications.ticket.reply"]
-                </label>
-            </div>
+
 
             <button class="btn btn-primary" @onclick="SaveAsync" disabled="@_saving">
                 @if (_saving) { <span class="spinner-border spinner-border-sm me-1"></span> }

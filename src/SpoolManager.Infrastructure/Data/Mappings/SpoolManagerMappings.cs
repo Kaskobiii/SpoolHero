@@ -174,6 +174,22 @@ public static class SpoolManagerMappings
             .Property(x => x.ProjectId).HasColumnName("project_id")
             .Property(x => x.Name).HasColumnName("name");
 
+        builder.Entity<SpoolmanIntegration>()
+            .HasTableName("spoolman_integrations").HasPrimaryKey(x => x.ProjectId)
+            .Property(x => x.ProjectId).HasColumnName("project_id")
+            .Property(x => x.TokenHash).HasColumnName("token_hash")
+            .Property(x => x.TokenCreatedAt).HasColumnName("token_created_at")
+            .Property(x => x.LastSeenAt).HasColumnName("last_seen_at")
+            .Property(x => x.LastUsageAt).HasColumnName("last_usage_at")
+            .Property(x => x.NextSpoolId).HasColumnName("next_spool_id");
+        builder.Entity<SpoolmanSpoolMap>()
+            .HasTableName("spoolman_spools").HasPrimaryKey(x => new { x.ProjectId, x.Id })
+            .Property(x => x.ProjectId).HasColumnName("project_id")
+            .Property(x => x.Id).HasColumnName("id")
+            .Property(x => x.SpoolId).HasColumnName("spool_id")
+            .Property(x => x.CardUids).HasColumnName("card_uids")
+            .Property(x => x.UsageRemainderGrams).HasColumnName("usage_remainder_grams");
+
         builder.Entity<Spool>()
             .HasTableName("spools")
             .HasPrimaryKey(x => x.Id)
@@ -186,6 +202,8 @@ public static class SpoolManagerMappings
             .Property(x => x.ReopenedAt).HasColumnName("reopened_at")
             .Property(x => x.DriedAt).HasColumnName("dried_at")
             .Property(x => x.ConsumedAt).HasColumnName("consumed_at")
+            .Property(x => x.InitialWeightGrams).HasColumnName("initial_weight_grams")
+            .Property(x => x.EmptySpoolWeightGrams).HasColumnName("empty_spool_weight_grams")
             .Property(x => x.RemainingWeightGrams).HasColumnName("remaining_weight_grams")
             .Property(x => x.RemainingPercent).HasColumnName("remaining_percent")
             .Property(x => x.PrinterId).HasColumnName("printer_id")

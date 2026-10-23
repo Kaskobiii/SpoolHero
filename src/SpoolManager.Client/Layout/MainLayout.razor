@@ -97,12 +97,6 @@ else
                         </ul>
                     </li>
 
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="/tickets">
-                            <i class="bi bi-headset me-1"></i>@L["nav.tickets"]
-                        </NavLink>
-                    </li>
-
                     @if (Auth.CurrentUser?.IsPlatformAdmin == true)
                     {
                         <li class="nav-item dropdown">
@@ -114,7 +108,6 @@ else
                                 <li><NavLink class="dropdown-item" href="/admin/users"><i class="bi bi-people me-2"></i>@L["nav.admin.users"]</NavLink></li>
                                 <li><NavLink class="dropdown-item" href="/admin/materials"><i class="bi bi-database me-2"></i>@L["nav.admin"]</NavLink></li>
                                 <li><NavLink class="dropdown-item" href="/admin/suggestions"><i class="bi bi-lightbulb me-2"></i>@L["admin.suggestions"]</NavLink></li>
-                                <li><NavLink class="dropdown-item" href="/admin/tickets"><i class="bi bi-ticket-perforated me-2"></i>@L["nav.admin.tickets"]</NavLink></li>
                                 <li><NavLink class="dropdown-item" href="/admin/audit"><i class="bi bi-journal-text me-2"></i>@L["admin.audit.title"]</NavLink></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><NavLink class="dropdown-item" href="/admin/settings"><i class="bi bi-gear me-2"></i>@L["admin.settings.title"]</NavLink></li>
@@ -133,6 +126,7 @@ else
                             <li><a class="dropdown-item" href="/settings/account"><i class="bi bi-person-gear me-2"></i>@L["nav.settings.account"]</a></li>
                             <li><a class="dropdown-item" href="/settings/password"><i class="bi bi-key me-2"></i>@L["auth.change.password"]</a></li>
                             <li><a class="dropdown-item" href="/settings/notifications"><i class="bi bi-bell me-2"></i>@L["settings.notifications.title"]</a></li>
+                            <li><NavLink class="dropdown-item" href="/settings/printer-integration"><i class="bi bi-plug me-2"></i>@L["nav.printer.connection"]</NavLink></li>
                             <li><NavLink class="dropdown-item" href="/backup"><i class="bi bi-cloud-arrow-down me-2"></i>@L["backup.title"]</NavLink></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
@@ -216,12 +210,6 @@ else
                 <li class="nav-item"><NavLink class="nav-link py-1" href="/storage" @onclick="CloseOffcanvas"><i class="bi bi-box me-2"></i>@L["nav.storage"]</NavLink></li>
                 <li class="nav-item"><NavLink class="nav-link py-1" href="/dryers" @onclick="CloseOffcanvas"><i class="bi bi-thermometer-half me-2"></i>@L["nav.dryers"]</NavLink></li>
 
-                <li class="nav-item mt-2">
-                    <NavLink class="nav-link" href="/tickets" @onclick="CloseOffcanvas">
-                        <i class="bi bi-headset me-2"></i>@L["nav.tickets"]
-                    </NavLink>
-                </li>
-
                 @if (Auth.CurrentUser?.IsPlatformAdmin == true)
                 {
                     <li class="nav-item mt-2">
@@ -231,7 +219,6 @@ else
                     <li class="nav-item"><NavLink class="nav-link py-1" href="/admin/users" @onclick="CloseOffcanvas"><i class="bi bi-people me-2"></i>@L["nav.admin.users"]</NavLink></li>
                     <li class="nav-item"><NavLink class="nav-link py-1" href="/admin/materials" @onclick="CloseOffcanvas"><i class="bi bi-database me-2"></i>@L["nav.admin"]</NavLink></li>
                     <li class="nav-item"><NavLink class="nav-link py-1" href="/admin/suggestions" @onclick="CloseOffcanvas"><i class="bi bi-lightbulb me-2"></i>@L["admin.suggestions"]</NavLink></li>
-                    <li class="nav-item"><NavLink class="nav-link py-1" href="/admin/tickets" @onclick="CloseOffcanvas"><i class="bi bi-ticket-perforated me-2"></i>@L["nav.admin.tickets"]</NavLink></li>
                     <li class="nav-item"><NavLink class="nav-link py-1" href="/admin/audit" @onclick="CloseOffcanvas"><i class="bi bi-journal-text me-2"></i>@L["admin.audit.title"]</NavLink></li>
                     <li class="nav-item"><NavLink class="nav-link py-1" href="/admin/settings" @onclick="CloseOffcanvas"><i class="bi bi-gear me-2"></i>@L["admin.settings.title"]</NavLink></li>
                 }
@@ -255,6 +242,11 @@ else
                     <a class="btn btn-outline-secondary w-100" href="/settings/notifications" @onclick="CloseOffcanvas">
                         <i class="bi bi-bell me-2"></i>@L["settings.notifications.title"]
                     </a>
+                </li>
+                <li class="nav-item mt-1">
+                    <NavLink class="btn btn-outline-secondary w-100" href="/settings/printer-integration" @onclick="CloseOffcanvas">
+                        <i class="bi bi-plug me-2"></i>@L["nav.printer.connection"]
+                    </NavLink>
                 </li>
                 <li class="nav-item mt-1">
                     <NavLink class="btn btn-outline-secondary w-100" href="/backup" @onclick="CloseOffcanvas">

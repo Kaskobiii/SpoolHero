@@ -139,6 +139,7 @@ public class InventoryController : ControllerBase
             if (spool == null)
                 return NotFound(new InventoryActionResult { Success = false, Description = "Spule nicht gefunden." });
 
+            var expectedUpdatedAt = spool.UpdatedAt;
             spool.PrinterId = null;
             spool.StorageLocationId = null;
             spool.DryerId = null;
@@ -166,7 +167,8 @@ public class InventoryController : ControllerBase
             }
 
             spool.UpdatedAt = DateTime.UtcNow;
-            await _spools.UpdateAsync(spool);
+            if (!await _spools.TryUpdateAsync(spool, expectedUpdatedAt))
+                return Conflict(new InventoryActionResult { Success = false, Description = "This spool changed. Scan it again and retry." });
             return Ok(new InventoryActionResult { Success = true, Description = $"Spule '{first.EntityName}' → {second.EntityName}" });
         }
 
@@ -176,6 +178,7 @@ public class InventoryController : ControllerBase
             if (spool == null)
                 return NotFound(new InventoryActionResult { Success = false, Description = "Spule nicht gefunden." });
 
+            var expectedUpdatedAt = spool.UpdatedAt;
             spool.PrinterId = null;
             spool.StorageLocationId = null;
             spool.DryerId = null;
@@ -203,7 +206,8 @@ public class InventoryController : ControllerBase
             }
 
             spool.UpdatedAt = DateTime.UtcNow;
-            await _spools.UpdateAsync(spool);
+            if (!await _spools.TryUpdateAsync(spool, expectedUpdatedAt))
+                return Conflict(new InventoryActionResult { Success = false, Description = "This spool changed. Scan it again and retry." });
             return Ok(new InventoryActionResult { Success = true, Description = $"Spule '{second.EntityName}' → {first.EntityName}" });
         }
 

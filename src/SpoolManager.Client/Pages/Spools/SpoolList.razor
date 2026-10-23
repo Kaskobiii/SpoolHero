@@ -74,7 +74,7 @@ else
                         <div class="remaining-bar-fill @GetBarClass(spool.RemainingPercent)"
                              style="width: @((int)Math.Min(spool.RemainingPercent, 100))%"></div>
                     </div>
-                    <small class="text-muted d-block mb-2">@spool.RemainingWeightGrams g – @spool.RemainingPercent%</small>
+                    <small class="text-muted d-block mb-2">@spool.RemainingWeightGrams g</small>
 
                     @if (spool.DryerId != null && spool.DriedAt != null)
                     {

@@ -20,3 +20,5 @@ Login accounts, passwords, project membership and server settings such as email 
 Import creates the saved projects and keeps the original inventory IDs and relationships. Your imported favorites belong to the account performing the import. Existing records with the same IDs prevent the import; the file is applied as a single operation, so a rejected import leaves the inventory unchanged. A fresh installation is the easiest destination.
 
 Backup files can be up to 64 MB. This inventory export is separate from backing up your Docker database volume and server configuration.
+
+Printer integration backups also preserve original filament and empty spool weights, linked NFC card UIDs, fractional usage and stable numeric printer IDs (including the next unused ID). Connection secrets are excluded. After restoring to Docker, create a new address in **Printer connection** and update the printer's Spoolman URL. Earlier version 1 backups remain supported.

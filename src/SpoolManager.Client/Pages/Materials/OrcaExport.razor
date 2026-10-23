@@ -37,7 +37,7 @@
                         <span style="width:.8em;height:.8em;background:#@spool.MaterialColorHex;border-radius:50%;border:1px solid var(--bs-border-color);flex-shrink:0"></span>
                         @spool.MaterialBrand @spool.MaterialType
                         @if (spool.MaterialColorName != null) { <span>- @spool.MaterialColorName</span> }
-                        <span class="text-muted ms-1">(@((int)spool.RemainingPercent)%)</span>
+                        <span class="text-muted ms-1">(@spool.RemainingWeightGrams g)</span>
                     </button>
                 }
             </div>

@@ -12,6 +12,8 @@ public class Spool
     public DateTime? ReopenedAt { get; set; }
     public DateTime? DriedAt { get; set; }
     public DateTime? ConsumedAt { get; set; }
+    public decimal? InitialWeightGrams { get; set; }
+    public decimal? EmptySpoolWeightGrams { get; set; }
     public decimal RemainingWeightGrams { get; set; }
     public decimal RemainingPercent { get; set; }
     public Guid? PrinterId { get; set; }

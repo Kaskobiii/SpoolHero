@@ -30,8 +30,9 @@ public partial class SpoolForm
     private bool _loading = true;
     private bool _saving;
     private string? _error;
-    private CreateSpoolRequest _form = new() { RemainingPercent = 100 };
-    private FilamentMaterialDto? _selectedMaterial;
+    private CreateSpoolRequest _form = new();
+    private decimal? _weighedTotalGrams;
+    private DateTime? _expectedUpdatedAt;
     private List<OwnerDto> _owners = [];
     private List<PrinterDto> _printers = [];
     private List<StorageLocationDto> _storages = [];
@@ -62,9 +63,11 @@ public partial class SpoolForm
             var spool = await Spools.GetByIdAsync(Id.Value);
             if (spool != null)
             {
+                _expectedUpdatedAt = spool.UpdatedAt;
                 _form.FilamentMaterialId = spool.FilamentMaterialId;
                 _form.RemainingWeightGrams = spool.RemainingWeightGrams;
-                _form.RemainingPercent = spool.RemainingPercent;
+                _form.EmptySpoolWeightGrams = spool.EmptySpoolWeightGrams;
+                _form.InitialWeightGrams = spool.InitialWeightGrams;
                 _form.PrinterId = spool.PrinterId;
                 _form.StorageLocationId = spool.StorageLocationId;
                 _form.DryerId = spool.DryerId;
@@ -130,12 +133,11 @@ public partial class SpoolForm
 
                 if (match != null)
                 {
-                    _selectedMaterial = match;
                     _form.FilamentMaterialId = match.Id;
                     if (match.WeightGrams is > 0)
                     {
                         _form.RemainingWeightGrams = match.WeightGrams.Value;
-                        _form.RemainingPercent = 100;
+                        _form.InitialWeightGrams = match.WeightGrams.Value;
                     }
                     if (string.IsNullOrEmpty(_form.ReorderUrl) && match.ReorderUrl != null)
                         _form.ReorderUrl = match.ReorderUrl;
@@ -181,45 +183,34 @@ public partial class SpoolForm
     {
         if (mat == null)
             return;
-        _selectedMaterial = mat;
         _form.FilamentMaterialId = mat.Id;
         if (Id.HasValue)
             return;
         if (mat.WeightGrams is > 0)
         {
             _form.RemainingWeightGrams = mat.WeightGrams.Value;
-            _form.RemainingPercent = 100;
+            _form.InitialWeightGrams = mat.WeightGrams.Value;
         }
         if (string.IsNullOrEmpty(_form.ReorderUrl) && mat.ReorderUrl != null)
             _form.ReorderUrl = mat.ReorderUrl;
     }
 
-    private void OnLocationChange(string type, string? value)
+    private bool CanApplyWeighedTotal => _form.EmptySpoolWeightGrams is decimal tare && tare >= 0
+        && _weighedTotalGrams is decimal gross && gross >= tare;
+
+    private void ApplyWeighedTotal()
     {
-        var parsed = Guid.TryParse(value, out var id) ? id : (Guid?)null;
-        _form.PrinterId = null;
-        _form.StorageLocationId = null;
-        _form.DryerId = null;
-        if (type == "printer")
-            _form.PrinterId = parsed;
-        else if (type == "storage")
-            _form.StorageLocationId = parsed;
-        else if (type == "dryer")
-            _form.DryerId = parsed;
+        if (CanApplyWeighedTotal)
+            _form.RemainingWeightGrams = Math.Round(_weighedTotalGrams!.Value - _form.EmptySpoolWeightGrams!.Value, 1);
     }
 
-    private void SetWeight(decimal value)
-    {
-        _form.RemainingWeightGrams = value;
-        if (_selectedMaterial?.WeightGrams is > 0)
-            _form.RemainingPercent = Math.Round(value / _selectedMaterial.WeightGrams.Value * 100m, 1);
-    }
+    private bool HasNoLocation => !_form.PrinterId.HasValue && !_form.StorageLocationId.HasValue && !_form.DryerId.HasValue;
 
-    private void SetPercent(decimal value)
+    private void OnLocationChange(string? type, Guid? id)
     {
-        _form.RemainingPercent = value;
-        if (_selectedMaterial?.WeightGrams is > 0)
-            _form.RemainingWeightGrams = Math.Round(value / 100m * _selectedMaterial.WeightGrams.Value, 1);
+        _form.PrinterId = type == "printer" ? id : null;
+        _form.StorageLocationId = type == "storage" ? id : null;
+        _form.DryerId = type == "dryer" ? id : null;
     }
 
     private async Task SaveAsync()
@@ -237,9 +228,11 @@ public partial class SpoolForm
         {
             resp = await Spools.UpdateAsync(Id.Value, new UpdateSpoolRequest
             {
+                ExpectedUpdatedAt = _expectedUpdatedAt,
                 FilamentMaterialId = _form.FilamentMaterialId,
                 RemainingWeightGrams = _form.RemainingWeightGrams,
-                RemainingPercent = _form.RemainingPercent,
+                EmptySpoolWeightGrams = _form.EmptySpoolWeightGrams,
+                InitialWeightGrams = _form.InitialWeightGrams,
                 RfidTagUid = _form.RfidTagUid,
                 PrinterId = _form.PrinterId,
                 StorageLocationId = _form.StorageLocationId,
@@ -259,6 +252,9 @@ public partial class SpoolForm
         _saving = false;
         if (resp.IsSuccessStatusCode)
             Nav.NavigateTo("/spools");
-        else _error = await resp.Content.ReadAsStringAsync();
+        else if (Id.HasValue && (int)resp.StatusCode == 409)
+            _error = L["spool.edit.conflict"];
+        else
+            _error = await resp.Content.ReadAsStringAsync();
     }
 }

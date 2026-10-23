@@ -173,14 +173,14 @@ public static class EmailTemplates
                 </p>
                 """, "de");
 
-    public static string SpoolLow(string materialName, double remainingPercent, string lang = "en") =>
+    public static string SpoolLow(string materialName, double remainingGrams, string lang = "en") =>
         lang == "en"
             ? Wrap("Spool Running Low",
                 $"""
                 <p>A spool is almost empty and should be reordered soon.</p>
                 <table style="width:100%;border-collapse:collapse;margin:15px 0">
                   <tr><td style="padding:8px;background:#f8f9fa;font-weight:bold;width:150px">Material</td><td style="padding:8px;border-bottom:1px solid #dee2e6">{materialName}</td></tr>
-                  <tr><td style="padding:8px;background:#f8f9fa;font-weight:bold">Remaining</td><td style="padding:8px;border-bottom:1px solid #dee2e6">{remainingPercent:F0} %</td></tr>
+                  <tr><td style="padding:8px;background:#f8f9fa;font-weight:bold">Remaining</td><td style="padding:8px;border-bottom:1px solid #dee2e6">{remainingGrams:0.##} g</td></tr>
                 </table>
                 <p>Log in to SpoolHero to view details and reorder if needed.</p>
                 """, "en")
@@ -189,7 +189,7 @@ public static class EmailTemplates
                 <p>Eine Spule ist fast leer und sollte bald nachbestellt werden.</p>
                 <table style="width:100%;border-collapse:collapse;margin:15px 0">
                   <tr><td style="padding:8px;background:#f8f9fa;font-weight:bold;width:150px">Material</td><td style="padding:8px;border-bottom:1px solid #dee2e6">{materialName}</td></tr>
-                  <tr><td style="padding:8px;background:#f8f9fa;font-weight:bold">Restmenge</td><td style="padding:8px;border-bottom:1px solid #dee2e6">{remainingPercent:F0} %</td></tr>
+                  <tr><td style="padding:8px;background:#f8f9fa;font-weight:bold">Restmenge</td><td style="padding:8px;border-bottom:1px solid #dee2e6">{remainingGrams:0.##} g</td></tr>
                 </table>
                 <p>Melde dich bei SpoolHero an, um Details zu sehen und ggf. nachzubestellen.</p>
                 """, "de");

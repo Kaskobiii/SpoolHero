@@ -1,4 +1,6 @@
 {
+  "spool.edit.conflict": "Diese Spule wurde während der Bearbeitung geändert. Lade sie neu und versuche es erneut.",
+  "nav.printer.connection": "Druckerverbindung",
   "backup.title": "Sichern & übertragen",
   "backup.description": "Exportiere deinen Bestand jetzt und importiere ihn später beim Umzug von SpoolHero zu Docker.",
   "backup.export.title": "Bestand sichern",
@@ -72,7 +74,6 @@
   "nav.theme.light": "Hell",
   "nav.theme.dark": "Dunkel",
   "nav.language": "Sprache",
-
   "auth.login": "Anmelden",
   "auth.register": "Registrieren",
   "auth.email": "E-Mail",
@@ -96,19 +97,17 @@
   "auth.new.password": "Neues Passwort",
   "auth.confirm.password": "Passwort bestaetigen",
   "auth.password.min": "Passwort muss mindestens 8 Zeichen lang sein.",
-  "auth.password.mismatch": "Passwoerter stimmen nicht ueberein.",
+  "auth.password.mismatch": "Passwörter stimmen nicht überein.",
   "auth.email.required": "E-Mail-Adresse erforderlich.",
   "auth.resend.hint": "Aktivierungslink abgelaufen? Gib deine E-Mail ein, um einen neuen zu erhalten.",
   "auth.resend.button": "Aktivierungslink erneut senden",
   "auth.resend.success": "Aktivierungslink wurde gesendet. Pruefe dein Postfach.",
-
   "dashboard.title": "Dashboard",
   "dashboard.total.spools": "Spulen gesamt",
   "dashboard.active.spools": "Aktive Spulen",
   "dashboard.low.stock": "Fast leer",
   "dashboard.consumed": "Verbraucht",
   "dashboard.recent": "Zuletzt hinzugefügt",
-
   "project.title": "Projekte",
   "project.create": "Projekt erstellen",
   "project.name": "Projektname",
@@ -136,7 +135,6 @@
   "project.no.project": "Kein Projekt vorhanden. Erstelle dein erstes Projekt.",
   "project.member.remove": "Mitglied entfernen",
   "project.member.remove.confirm": "Dieses Mitglied wirklich entfernen?",
-
   "spool.title": "Spulen",
   "spool.add": "Spule hinzufügen",
   "spool.edit": "Spule bearbeiten",
@@ -147,9 +145,17 @@
   "material.picker.hint": "Suchbegriff eingeben (Marke, Typ oder Farbe)",
   "spool.brand": "Marke",
   "spool.color": "Farbe",
-  "spool.remaining": "Restmenge",
-  "spool.remaining.grams": "Restmenge (g)",
-  "spool.remaining.percent": "Restmenge (%)",
+  "spool.remaining": "Verbleibendes Filament",
+  "spool.remaining.grams": "Verbleibendes Filament (g)",
+  "spool.remaining.grams.hint": "Nur Filament, ohne das Gewicht der leeren Spule.",
+  "spool.initial.weight": "Filamentgewicht bei voller Spule (g)",
+  "spool.initial.weight.hint": "Ursprüngliches Filamentgewicht ohne leere Spule. Dient als Bezug für die Restmenge.",
+  "spool.empty.weight": "Leergewicht der Spule (g)",
+  "spool.empty.weight.hint": "Gewicht der Spule ohne Filament (Taragewicht).",
+  "spool.weighed.total": "Gesamtgewicht auf der Waage (g)",
+  "spool.weighed.total.hint": "Mit Filament und Spule. Berechnen zieht das Leergewicht ab; mit Speichern wird das Ergebnis übernommen.",
+  "spool.calculate.remaining": "Restmenge berechnen",
+  "spool.location.unassigned": "Kein Standort",
   "spool.location": "Lagerplatz",
   "spool.printer": "Drucker",
   "spool.storage": "Lagerort",
@@ -180,7 +186,6 @@
   "spool.no.storage": "Kein Lagerort",
   "spool.no.dryer": "Kein Trockner",
   "spool.material.required": "Bitte ein Material auswählen.",
-
   "material.title": "Materialien",
   "material.add": "Material hinzufügen",
   "material.edit": "Material bearbeiten",
@@ -238,16 +243,13 @@
   "material.suggest.existing": "Verbesserung fuer: {0}",
   "material.suggest.success": "Vorschlag eingereicht! Ein Admin wird ihn pruefen.",
   "material.suggest.my": "Meine Vorschlaege",
-
   "suggestion.status.pending": "Ausstehend",
   "suggestion.status.approved": "Genehmigt",
   "suggestion.status.rejected": "Abgelehnt",
-
   "admin.ofd.sync": "Open Filament Database",
   "admin.ofd.sync.button": "OFD synchronisieren",
   "admin.ofd.sync.running": "Synchronisiere...",
   "admin.ofd.sync.result": "{0} erstellt, {1} aktualisiert, {2} uebersprungen",
-
   "admin.suggestions": "Vorschlaege",
   "admin.suggestions.title": "Material-Vorschlaege",
   "admin.suggestions.empty": "Keine Vorschlaege",
@@ -257,7 +259,6 @@
   "admin.suggestions.review": "Pruefen",
   "admin.suggestions.user": "Eingereicht von",
   "admin.suggestions.material": "Bezieht sich auf",
-
   "dryer.title": "Trockner",
   "dryer.add": "Trockner hinzufügen",
   "dryer.edit": "Trockner bearbeiten",
@@ -265,13 +266,11 @@
   "dryer.delete.confirm": "Trockner wirklich löschen?",
   "dryer.name": "Name",
   "dryer.description": "Beschreibung",
-
   "overview.title": "Standortübersicht",
   "overview.empty": "Keine Einträge",
   "overview.printers": "Drucker",
   "overview.storage": "Lagerorte",
   "overview.dryers": "Trockner",
-
   "admin.dashboard.title": "Admin Dashboard",
   "admin.stats.users.total": "Benutzer gesamt",
   "admin.stats.users.active": "Aktiv (15 Min)",
@@ -283,7 +282,6 @@
   "admin.stats.inprogress.tickets": "In Bearbeitung",
   "admin.stats.link.clicks": "Reorder-Klicks",
   "admin.stats.top.clicked": "Top 5 Materialien (nach Klicks)",
-
   "admin.users.title": "Benutzerverwaltung",
   "admin.users.make.admin": "Admin machen",
   "admin.users.remove.admin": "Admin entfernen",
@@ -295,12 +293,10 @@
   "admin.users.yourself": "Eigener Account",
   "admin.users.reset.onboarding": "Onboarding zurücksetzen",
   "admin.users.reset.onboarding.success": "Onboarding für {0} wurde zurückgesetzt.",
-
   "admin.tickets.title": "Ticket-Verwaltung",
   "admin.tickets.assign.me": "Mir zuweisen",
   "admin.tickets.unassign": "Freigeben",
   "admin.tickets.set.status": "Status setzen",
-
   "ticket.title": "Support-Tickets",
   "ticket.your.tickets": "Meine Tickets",
   "ticket.new": "Neues Ticket",
@@ -325,12 +321,9 @@
   "ticket.none": "Keine Tickets vorhanden.",
   "ticket.admin.note": "Admin",
   "ticket.created.success": "Ticket erstellt.",
-
   "material.reorder.clicks": "Klicks",
-
   "admin.materials.title": "Globale Materialien (Admin)",
   "admin.materials.global": "Globale Materialien sind für alle Projekte sichtbar und werden von Platform-Admins verwaltet.",
-
   "admin.audit.title": "Audit-Log",
   "admin.audit.timestamp": "Zeitstempel",
   "admin.audit.user": "Benutzer",
@@ -344,7 +337,6 @@
   "admin.audit.action.login.fail": "Login fehlgeschlagen",
   "admin.audit.action.member": "Mitgliedschaft",
   "admin.audit.action.global.material": "Globales Material",
-
   "tag.scan.title": "Tag scannen",
   "tag.entity.spool": "Spule",
   "tag.entity.printer": "Drucker",
@@ -355,9 +347,7 @@
   "tag.view.details": "Details anzeigen",
   "auth.change.password": "Passwort ändern",
   "auth.current.password": "Aktuelles Passwort",
-  "auth.new.password": "Neues Passwort",
   "auth.new.password.confirm": "Neues Passwort bestätigen",
-  "auth.password.mismatch": "Passwörter stimmen nicht überein.",
   "auth.password.changed": "Passwort erfolgreich geändert.",
   "auth.password.error": "Passwortänderung fehlgeschlagen.",
   "auth.login.blocked": "Zu viele Fehlversuche. Bitte warten.",
@@ -366,13 +356,11 @@
   "auth.verify.success": "E-Mail-Adresse erfolgreich bestätigt. Du kannst dich jetzt anmelden.",
   "auth.verify.error": "Der Bestätigungslink ist ungültig oder abgelaufen.",
   "auth.email.unverified": "Bitte bestätige zuerst deine E-Mail-Adresse.",
-
   "admin.users.unverified": "Nicht bestätigt",
   "admin.users.protected": "Geschützt",
   "admin.users.delete.confirm.title": "Benutzer löschen",
   "admin.users.delete.confirm": "Benutzer wirklich löschen:",
   "admin.users.delete.warning": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Daten des Benutzers werden gelöscht.",
-
   "admin.settings.title": "Einstellungen",
   "admin.settings.general.title": "Allgemein",
   "admin.settings.general.landing.label": "Landingpage anzeigen",
@@ -399,22 +387,18 @@
   "admin.settings.smtp.test.email": "Empfänger-E-Mail",
   "admin.settings.smtp.test.ok": "Testmail erfolgreich gesendet.",
   "admin.settings.smtp.test.fail": "Testmail fehlgeschlagen. SMTP-Einstellungen prüfen.",
-
   "settings.notifications.title": "Benachrichtigungen",
   "settings.notifications.hint": "Wähle, für welche Ereignisse du E-Mail-Benachrichtigungen erhalten möchtest.",
-  "settings.notifications.spool.low": "Spule fast leer (≤15%)",
+  "settings.notifications.spool.low": "Spule fast leer",
   "settings.notifications.dryer.done": "Trockner fertig",
   "settings.notifications.ticket.reply": "Neue Antwort auf mein Ticket",
-
   "legal.privacy.title": "Datenschutz",
   "legal.imprint.title": "Impressum",
   "legal.not.configured": "Der Betreiber dieser Instanz hat noch keinen Text hinterlegt.",
   "legal.terms.title": "Nutzungsbedingungen",
-
   "admin.settings.legal.title": "Rechtliche Seiten (Datenschutz & Impressum)",
   "admin.settings.legal.hint": "Inhalt wird als HTML dargestellt. Leer lassen = die Seite zeigt einen Hinweis, dass kein Text konfiguriert wurde.",
   "admin.settings.legal.empty.hint": "HTML-Inhalt hier eingeben …",
-
   "settings.account.title": "Mein Konto",
   "settings.account.info.title": "Kontoinformationen",
   "settings.account.onboarding.title": "Onboarding",
@@ -430,14 +414,11 @@
   "settings.account.delete.error": "Falsches Passwort oder Fehler beim Löschen. Bitte erneut versuchen.",
   "settings.account.delete.superadmin": "Das Hauptadmin-Konto kann nicht gelöscht werden.",
   "nav.settings.account": "Mein Konto",
-
   "cookie.banner.text": "Diese Anwendung verwendet technisch notwendige Cookies und lokalen Speicher für Authentifizierung und Einstellungen. Weitere Informationen:",
   "cookie.banner.ok": "Verstanden",
-
   "common.access.denied": "Zugriff verweigert.",
   "common.not.found": "Nicht gefunden.",
   "mobile.quick.actions": "Mobile Schnellaktionen",
-
   "tag.title": "RFID Tags",
   "tag.write.success": "Tag erfolgreich geschrieben!",
   "tag.write.hint": "Wähle den Bereich aus, in dem du einen Tag schreiben möchtest. Die NFC-Schaltfläche findest du direkt beim jeweiligen Eintrag.",
@@ -461,7 +442,6 @@
   "tag.invalid": "Kein gültiger OpenSpool Tag",
   "tag.save.spool": "Als Spule speichern",
   "tag.raw.json": "Rohdaten (JSON)",
-
   "inventory.title": "Inventur",
   "inventory.start.title": "Inventur starten",
   "inventory.start.hint": "Scanne nacheinander zwei Tags um die Zuweisung zu ändern.",
@@ -498,7 +478,6 @@
   "inventory.type.spool": "Spule",
   "inventory.type.printer": "Drucker",
   "inventory.type.storage": "Lagerort",
-
   "printer.title": "Drucker",
   "printer.add": "Drucker hinzufügen",
   "printer.edit": "Drucker bearbeiten",
@@ -506,7 +485,6 @@
   "printer.delete.confirm": "Drucker wirklich löschen?",
   "printer.name": "Name",
   "printer.notes": "Notizen",
-
   "storage.title": "Lagerorte",
   "storage.add": "Lagerort hinzufügen",
   "storage.edit": "Lagerort bearbeiten",
@@ -514,7 +492,6 @@
   "storage.delete.confirm": "Lagerort wirklich löschen?",
   "storage.name": "Name",
   "storage.description": "Beschreibung",
-
   "common.save": "Speichern",
   "common.cancel": "Abbrechen",
   "common.delete": "Löschen",
@@ -550,7 +527,6 @@
   "spool.nfc.import.no.match": "Kein passendes Material gefunden für {brand} {type}. Bitte manuell auswählen.",
   "spool.nfc.scanning": "Warte auf NFC-Tag…",
   "spool.nfc.error": "NFC-Fehler. Bitte erneut versuchen.",
-
   "dashboard.by.location": "Spulen nach Standort",
   "dashboard.no.location": "Ohne Standort",
   "dashboard.onboarding.title": "Schnellstart",
@@ -564,9 +540,7 @@
   "dashboard.onboarding.step.inventory": "Öffne Inventur, scanne den Spulen-Tag und danach den Lagerort-Tag, um die Spule einzulagern.",
   "dashboard.onboarding.done": "Erledigt",
   "dashboard.onboarding.pending": "Offen",
-
   "common.image.upload.success": "Bild erfolgreich hochgeladen.",
-
   "landing.tagline.short": "Filament-Verwaltung für 3D-Drucker",
   "landing.hero.headline": "Deine Filamente. Immer im Überblick.",
   "landing.hero.subline": "SpoolHero ist die kostenlose Lösung zur Verwaltung deiner 3D-Druck-Filamentspulen – übersichtlich, mobil und für Einzelpersonen & Teams.",
@@ -587,36 +561,66 @@
   "landing.feature.selfhost.title": "Modern & Zuverlässig",
   "landing.feature.selfhost.desc": "Gebaut auf .NET 8 und Blazor WebAssembly – schnell, modern und sicher. Läuft im Browser, funktioniert auf Desktop und Mobil. Regelmäßige Updates und aktive Weiterentwicklung.",
   "landing.tech.label": "Technologien",
-
   "landing.free.title": "Kostenlos. Für alle.",
   "landing.free.desc": "SpoolHero wird kostenlos bereitgestellt – für Einzelpersonen genauso wie für Teams. Keine versteckten Kosten, kein Abo-Modell. Das Projekt finanziert sich durch freiwillige Spenden der Community und Affiliate-Links zu empfohlenen Produkten.",
   "landing.free.funded.donations": "Spenden der Community",
   "landing.free.funded.affiliate": "Affiliate-Links",
-
   "landing.nfc.android.note": "NFC-Tags schreiben erfordert Android – iOS unterstützt kein Schreiben von NFC-Tags über den Browser. Eine native App ist bei entsprechender Nachfrage in Planung.",
   "landing.nfc.android.note.short": "NFC-Schreiben nur auf Android verfügbar. iOS wird nicht unterstützt.",
-
   "landing.openspool.title": "OpenSpool-Standard",
   "landing.openspool.desc": "SpoolHero implementiert den offenen OpenSpool-Standard – ein einheitliches JSON-Format für Filament-Daten auf NFC-Tags (NTAG215/216). Kompatibel mit anderen Tools und Druckern, die denselben Standard verwenden.",
   "landing.openspool.github": "OpenSpool auf GitHub",
-
   "landing.ntag.title": "Empfohlen für NTAG215/216",
   "landing.ntag.desc": "Nutze beschreibbare NTAG215/216 NFC-Tags für Drucker, Lagerorte und Spulen. Selbstklebende Tags sind am einfachsten zu platzieren.",
   "landing.ntag.link": "Empfehlung öffnen",
-
   "landing.opensource.title": "Open Source",
   "landing.opensource.desc": "SpoolHero ist Open Source und kann selbst gehostet werden. Betreibe deine eigene Instanz auf eigener Hardware – volle Kontrolle über deine Daten. Beiträge sind willkommen.",
   "landing.opensource.github": "Auf GitHub ansehen",
-
   "landing.tos.title": "Nutzungsbedingungen",
   "landing.tos.desc": "Durch die Nutzung von SpoolHero stimmst du unseren Nutzungsbedingungen zu. SpoolHero wird ohne Gewährleistung bereitgestellt – die Nutzung erfolgt auf eigene Gefahr. Affiliate-Links auf dieser Seite helfen, den Betrieb zu finanzieren.",
   "landing.tos.link": "Vollständige Nutzungsbedingungen lesen",
-
   "auth.terms.accept": "Ich akzeptiere die",
   "auth.privacy.accept": "Ich habe die",
   "auth.terms.required": "Bitte akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung.",
-
   "admin.settings.catalog.label": "OpenFilamentDB-Materialien anzeigen",
   "admin.settings.catalog.hint": "Deaktivieren, um in Materiallisten und der Materialauswahl nur im jeweiligen Projekt erstellte Materialien anzuzeigen. Bestehende Spulen behalten ihre Materialien. Die Katalogsynchronisierung wird ebenfalls deaktiviert.",
-  "admin.settings.catalog.disabled": "OpenFilamentDB ist deaktiviert. Globale Materialien werden in den Materiallisten und der Materialauswahl der Projekte ausgeblendet; bestehende Spulen behalten ihre Materialien. Zur Aktivierung der Katalogsynchronisierung öffne"
+  "admin.settings.catalog.disabled": "OpenFilamentDB ist deaktiviert. Globale Materialien werden in den Materiallisten und der Materialauswahl der Projekte ausgeblendet; bestehende Spulen behalten ihre Materialien. Zur Aktivierung der Katalogsynchronisierung öffne",
+  "integration.description": "Verbinde die paxx12-Firmware mit diesem Projekt und erfasse den Verbrauch pro Spule.",
+  "integration.admin.required": "Ein Projektadministrator kann die Druckerverbindung einrichten.",
+  "integration.connection": "Filamentverbrauch am Drucker",
+  "integration.enabled": "Verbindung aktiviert",
+  "integration.disabled": "Noch nicht verbunden",
+  "integration.refresh": "Status aktualisieren",
+  "integration.local.hint": "Du kannst dein Inventar jetzt vorbereiten und den Drucker später verbinden. SpoolHero muss beim Drucken laufen und im Netzwerk erreichbar sein.",
+  "integration.create": "Verbindungsadresse erstellen",
+  "integration.replace": "Verbindungsadresse ersetzen",
+  "integration.disable": "Verbindung deaktivieren",
+  "integration.replace.hint": "Die bisherige Adresse funktioniert danach nicht mehr. Aktualisiere die Adresse an allen verbundenen Druckern.",
+  "integration.disable.hint": "Dies beendet die automatische Verbrauchserfassung. Deine gespeicherten Spulen bleiben erhalten.",
+  "integration.address.title": "Deine Drucker-Verbindungsadresse",
+  "integration.address.secret": "Behandle diese Adresse vertraulich: Sie erlaubt den Zugriff auf Spulendaten und Verbrauchsänderungen dieses Projekts. Sie wird nur beim Erstellen angezeigt.",
+  "integration.server.address": "SpoolHero-Serveradresse in deinem Netzwerk",
+  "integration.copy.address": "Diese Adresse in paxx12 als Spoolman-URL einfügen",
+  "integration.copy": "Adresse kopieren",
+  "integration.copied": "Kopiert",
+  "integration.address.help": "Nutze die LAN-Adresse des Docker-Servers und den veröffentlichten Port, z. B. http://192.168.1.100:8080. Eine localhost-Adresse funktioniert nur auf diesem Computer.",
+  "integration.existing.address": "Die Adresse wird nach dem Erstellen verborgen. Wenn du sie nicht mehr hast, ersetze sie und aktualisiere den Drucker.",
+  "integration.last.seen": "Letzter Druckerkontakt",
+  "integration.last.usage": "Letzte Verbrauchsänderung",
+  "integration.connections": "Aktive Verbindungen",
+  "integration.not.yet": "Noch nicht",
+  "integration.setup.title": "Wenn dein Drucker bereit ist",
+  "integration.setup.1": "Trage in SpoolHero Durchmesser und Dichte des Materials korrekt ein. Lege deine Spulen an und verknüpfe ihre NFC-Tag-UIDs. Zwei Tags lassen sich im Filament Manager von paxx12 zuordnen.",
+  "integration.setup.2": "Erstelle oben eine Verbindungsadresse. Öffne am Drucker firmware-config → Settings → Snapmaker Components → Spoolman Integration. Aktiviere die Funktion und füge die Adresse ein.",
+  "integration.setup.3": "Lade eine markierte Spule und prüfe sie im Filament Manager des Druckers. Nutze Sync Filament im regulären Snorca.",
+  "integration.setup.4": "Drucke einen kleinen Test und prüfe danach die verbleibenden Gramm. Der Verbrauch wird aus dem extrudierten Filament geschätzt und in SpoolHero gespeichert. Der NFC-Tag identifiziert die Spule; das Restgewicht wird nicht auf den Tag geschrieben.",
+  "integration.spools.title": "Für den Drucker verfügbare Spulen",
+  "integration.spools.hint": "Drucker-IDs und zugeordnete Tag-UIDs sind in Inventarsicherungen enthalten. Erstelle nach dem Umzug zu Docker eine neue Verbindungsadresse.",
+  "integration.spools.empty": "Lege eine Spule in diesem Projekt an, um sie für den Drucker vorzubereiten.",
+  "integration.tags": "NFC-Tags",
+  "integration.no.tags": "Noch kein Tag verknüpft",
+  "integration.material.incomplete": "Lege Dichte und Durchmesser dieses Materials für die automatische Erfassung fest.",
+  "integration.copy.manual": "Dein Browser konnte die Adresse nicht kopieren. Markiere sie oben und kopiere sie manuell.",
+  "integration.spools.disabled": "Erstelle eine Verbindung, um Drucker-IDs für die Spulen dieses Projekts vorzubereiten.",
+  "integration.spools.limit": "Diese Firmware sucht Tags in den ersten 1.000 aktiven Spulen. Eine größere Bibliothek erfordert eine explizite Spulenauswahl oder ein Firmware-Update."
 }

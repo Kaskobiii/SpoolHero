@@ -32,29 +32,50 @@ else
                     </div>
                     <div class="mb-3">
                         <span class="fs-4 fw-bold">@_spool.RemainingWeightGrams g</span>
-                        <span class="text-muted ms-2">(@_spool.RemainingPercent%)</span>
                     </div>
+
+                    @if (_spool.InitialWeightGrams.HasValue)
+                    {
+                        <div class="text-muted small mb-2">@L["spool.initial.weight"]: @_spool.InitialWeightGrams g</div>
+                    }
+                    @if (_spool.EmptySpoolWeightGrams.HasValue)
+                    {
+                        <div class="text-muted small mb-3">@L["spool.empty.weight"]: @_spool.EmptySpoolWeightGrams g</div>
+                    }
 
                     @if (!_showRemainingForm)
                     {
-                        <button class="btn btn-sm btn-outline-primary" @onclick="() => _showRemainingForm = true">
+                        <button class="btn btn-sm btn-outline-primary" @onclick="ShowRemainingForm">
                             <i class="bi bi-pencil me-1"></i>@L["spool.update.remaining"]
                         </button>
                     }
                     else
                     {
                         <div class="row g-2 align-items-end">
-                            <div class="col-6">
-                                <label class="form-label form-label-sm">@L["spool.remaining.grams"]</label>
-                                <input class="form-control form-control-sm" type="number" step="0.1" min="0" @bind="_remainingGrams" />
+                            @if (_remainingError != null)
+                            {
+                                <div class="col-12"><div class="alert alert-danger mb-0" role="alert">@_remainingError</div></div>
+                            }
+                            <div class="col-12">
+                                <label class="form-label" for="remaining-grams">@L["spool.remaining.grams"]</label>
+                                <input id="remaining-grams" class="form-control" type="number" inputmode="decimal" step="0.1" min="0" @bind="_remainingGrams" />
                             </div>
-                            <div class="col-6">
-                                <label class="form-label form-label-sm">@L["spool.remaining.percent"]</label>
-                                <input class="form-control form-control-sm" type="number" step="0.1" min="0" max="100" @bind="_remainingPct" />
-                            </div>
-                            <div class="col-12 d-flex gap-2 mt-1">
-                                <button class="btn btn-sm btn-primary" @onclick="UpdateRemainingAsync">@L["common.save"]</button>
-                                <button class="btn btn-sm btn-secondary" @onclick="() => _showRemainingForm = false">@L["common.cancel"]</button>
+                            <div class="col-12 form-text mt-1">@L["spool.remaining.grams.hint"]</div>
+                            @if (_spool.EmptySpoolWeightGrams is >= 0)
+                            {
+                                <div class="col-12">
+                                    <label class="form-label" for="remaining-weighed-total">@L["spool.weighed.total"]</label>
+                                    <div class="d-flex flex-wrap align-items-end gap-2">
+                                        <input id="remaining-weighed-total" class="form-control spool-weighed-input" type="number" inputmode="decimal" step="0.1" min="0"
+                                               @bind="_weighedTotalGrams" />
+                                        <button type="button" class="btn btn-outline-primary" disabled="@(!CanApplyWeighedTotal)" @onclick="ApplyWeighedTotal">@L["spool.calculate.remaining"]</button>
+                                    </div>
+                                    <div class="form-text">@L["spool.weighed.total.hint"]</div>
+                                </div>
+                            }
+                            <div class="col-12 d-flex flex-wrap gap-2 mt-1">
+                                <button class="btn btn-primary" @onclick="UpdateRemainingAsync" disabled="@_savingRemaining">@L["common.save"]</button>
+                                <button class="btn btn-secondary" @onclick="() => _showRemainingForm = false" disabled="@_savingRemaining">@L["common.cancel"]</button>
                             </div>
                         </div>
                     }

@@ -1,4 +1,6 @@
 {
+  "spool.edit.conflict": "This spool changed while you were editing. Reload it and try again.",
+  "nav.printer.connection": "Printer connection",
   "backup.title": "Backup & transfer",
   "backup.description": "Export your inventory now and import it when you move SpoolHero to Docker.",
   "backup.export.title": "Save your inventory",
@@ -72,7 +74,6 @@
   "nav.theme.light": "Light",
   "nav.theme.dark": "Dark",
   "nav.language": "Language",
-
   "auth.login": "Login",
   "auth.register": "Register",
   "auth.email": "Email",
@@ -93,7 +94,7 @@
   "auth.reset.success": "Password reset successfully. You can now sign in.",
   "auth.reset.invalid": "Invalid or expired link.",
   "auth.reset.expired": "The link has expired. Please request a new one.",
-  "auth.new.password": "New password",
+  "auth.new.password": "New Password",
   "auth.confirm.password": "Confirm password",
   "auth.password.min": "Password must be at least 8 characters.",
   "auth.password.mismatch": "Passwords do not match.",
@@ -101,14 +102,12 @@
   "auth.resend.hint": "Activation link expired? Enter your email to receive a new one.",
   "auth.resend.button": "Resend activation link",
   "auth.resend.success": "Activation link has been sent. Check your inbox.",
-
   "dashboard.title": "Dashboard",
   "dashboard.total.spools": "Total Spools",
   "dashboard.active.spools": "Active Spools",
   "dashboard.low.stock": "Low Stock",
   "dashboard.consumed": "Consumed",
   "dashboard.recent": "Recently Added",
-
   "project.title": "Projects",
   "project.create": "Create Project",
   "project.name": "Project Name",
@@ -136,7 +135,6 @@
   "project.no.project": "No projects yet. Create your first project.",
   "project.member.remove": "Remove Member",
   "project.member.remove.confirm": "Really remove this member?",
-
   "spool.title": "Spools",
   "spool.add": "Add Spool",
   "spool.edit": "Edit Spool",
@@ -147,9 +145,17 @@
   "material.picker.hint": "Type to search (brand, type or color)",
   "spool.brand": "Brand",
   "spool.color": "Color",
-  "spool.remaining": "Remaining",
-  "spool.remaining.grams": "Remaining (g)",
-  "spool.remaining.percent": "Remaining (%)",
+  "spool.remaining": "Remaining filament",
+  "spool.remaining.grams": "Remaining filament (g)",
+  "spool.remaining.grams.hint": "Filament only, excluding the empty spool.",
+  "spool.initial.weight": "Filament when full (g)",
+  "spool.initial.weight.hint": "Original filament weight, excluding the empty spool. Used to gauge how much remains.",
+  "spool.empty.weight": "Empty spool weight (g)",
+  "spool.empty.weight.hint": "The weight of the spool without any filament (tare weight).",
+  "spool.weighed.total": "Total weight on the scale (g)",
+  "spool.weighed.total.hint": "Includes filament and spool. Calculate subtracts the empty spool weight; save to apply the result.",
+  "spool.calculate.remaining": "Calculate remaining",
+  "spool.location.unassigned": "No location",
   "spool.location": "Location",
   "spool.printer": "Printer",
   "spool.storage": "Storage",
@@ -180,7 +186,6 @@
   "spool.no.storage": "No Storage",
   "spool.no.dryer": "No Dryer",
   "spool.material.required": "Please select a material.",
-
   "material.title": "Materials",
   "material.add": "Add Material",
   "material.edit": "Edit Material",
@@ -238,16 +243,13 @@
   "material.suggest.existing": "Improvement for: {0}",
   "material.suggest.success": "Suggestion submitted! An admin will review it.",
   "material.suggest.my": "My suggestions",
-
   "suggestion.status.pending": "Pending",
   "suggestion.status.approved": "Approved",
   "suggestion.status.rejected": "Rejected",
-
   "admin.ofd.sync": "Open Filament Database",
   "admin.ofd.sync.button": "Sync OFD",
   "admin.ofd.sync.running": "Syncing...",
   "admin.ofd.sync.result": "{0} created, {1} updated, {2} skipped",
-
   "admin.suggestions": "Suggestions",
   "admin.suggestions.title": "Material Suggestions",
   "admin.suggestions.empty": "No suggestions",
@@ -257,7 +259,6 @@
   "admin.suggestions.review": "Review",
   "admin.suggestions.user": "Submitted by",
   "admin.suggestions.material": "Related to",
-
   "dryer.title": "Dryers",
   "dryer.add": "Add Dryer",
   "dryer.edit": "Edit Dryer",
@@ -265,13 +266,11 @@
   "dryer.delete.confirm": "Delete this dryer?",
   "dryer.name": "Name",
   "dryer.description": "Description",
-
   "overview.title": "Location Overview",
   "overview.empty": "No entries",
   "overview.printers": "Printers",
   "overview.storage": "Storage Locations",
   "overview.dryers": "Dryers",
-
   "admin.dashboard.title": "Admin Dashboard",
   "admin.stats.users.total": "Total Users",
   "admin.stats.users.active": "Active (15 min)",
@@ -283,7 +282,6 @@
   "admin.stats.inprogress.tickets": "In Progress",
   "admin.stats.link.clicks": "Reorder Clicks",
   "admin.stats.top.clicked": "Top 5 Materials (by Clicks)",
-
   "admin.users.title": "User Management",
   "admin.users.make.admin": "Make Admin",
   "admin.users.remove.admin": "Remove Admin",
@@ -295,12 +293,10 @@
   "admin.users.yourself": "Your Account",
   "admin.users.reset.onboarding": "Reset onboarding",
   "admin.users.reset.onboarding.success": "Onboarding for {0} has been reset.",
-
   "admin.tickets.title": "Ticket Management",
   "admin.tickets.assign.me": "Assign to me",
   "admin.tickets.unassign": "Release",
   "admin.tickets.set.status": "Set Status",
-
   "ticket.title": "Support Tickets",
   "ticket.your.tickets": "My Tickets",
   "ticket.new": "New Ticket",
@@ -325,12 +321,9 @@
   "ticket.none": "No tickets found.",
   "ticket.admin.note": "Admin",
   "ticket.created.success": "Ticket created.",
-
   "material.reorder.clicks": "Clicks",
-
   "admin.materials.title": "Global Materials (Admin)",
   "admin.materials.global": "Global materials are visible to all projects and managed by platform admins.",
-
   "admin.audit.title": "Audit Log",
   "admin.audit.timestamp": "Timestamp",
   "admin.audit.user": "User",
@@ -344,7 +337,6 @@
   "admin.audit.action.login.fail": "Login failed",
   "admin.audit.action.member": "Membership",
   "admin.audit.action.global.material": "Global Material",
-
   "tag.scan.title": "Scan Tag",
   "tag.entity.spool": "Spool",
   "tag.entity.printer": "Printer",
@@ -355,9 +347,7 @@
   "tag.view.details": "View Details",
   "auth.change.password": "Change Password",
   "auth.current.password": "Current Password",
-  "auth.new.password": "New Password",
   "auth.new.password.confirm": "Confirm New Password",
-  "auth.password.mismatch": "Passwords do not match.",
   "auth.password.changed": "Password changed successfully.",
   "auth.password.error": "Failed to change password.",
   "auth.login.blocked": "Too many failed attempts. Please wait.",
@@ -366,13 +356,11 @@
   "auth.verify.success": "Email address verified successfully. You can now log in.",
   "auth.verify.error": "The verification link is invalid or has expired.",
   "auth.email.unverified": "Please verify your email address first.",
-
   "admin.users.unverified": "Unverified",
   "admin.users.protected": "Protected",
   "admin.users.delete.confirm.title": "Delete User",
   "admin.users.delete.confirm": "Really delete user:",
   "admin.users.delete.warning": "This action cannot be undone. All user data will be deleted.",
-
   "admin.settings.title": "Settings",
   "admin.settings.general.title": "General",
   "admin.settings.general.landing.label": "Show landing page",
@@ -399,22 +387,18 @@
   "admin.settings.smtp.test.email": "Recipient Email",
   "admin.settings.smtp.test.ok": "Test email sent successfully.",
   "admin.settings.smtp.test.fail": "Test email failed. Check your SMTP settings.",
-
   "settings.notifications.title": "Notifications",
   "settings.notifications.hint": "Choose which events you want to receive email notifications for.",
-  "settings.notifications.spool.low": "Spool almost empty (≤15%)",
+  "settings.notifications.spool.low": "Spool running low",
   "settings.notifications.dryer.done": "Dryer finished",
   "settings.notifications.ticket.reply": "New reply to my ticket",
-
   "legal.privacy.title": "Privacy Policy",
   "legal.imprint.title": "Imprint",
   "legal.terms.title": "Terms of Use",
   "legal.not.configured": "The operator of this instance has not yet configured this page.",
-
   "admin.settings.legal.title": "Legal Pages (Privacy Policy & Imprint)",
   "admin.settings.legal.hint": "Content is rendered as HTML. Leave empty to show a placeholder notice.",
   "admin.settings.legal.empty.hint": "Enter HTML content here …",
-
   "settings.account.title": "My Account",
   "settings.account.info.title": "Account Information",
   "settings.account.onboarding.title": "Onboarding",
@@ -430,14 +414,11 @@
   "settings.account.delete.error": "Incorrect password or error during deletion. Please try again.",
   "settings.account.delete.superadmin": "The main admin account cannot be deleted.",
   "nav.settings.account": "My Account",
-
   "cookie.banner.text": "This application uses technically necessary cookies and local storage for authentication and settings. Learn more:",
   "cookie.banner.ok": "Got it",
-
   "common.access.denied": "Access denied.",
   "common.not.found": "Not found.",
   "mobile.quick.actions": "Mobile quick actions",
-
   "tag.title": "RFID Tags",
   "tag.write.success": "Tag written successfully!",
   "tag.write.hint": "Choose where you want to write a tag. The NFC write button is available directly on each item.",
@@ -461,7 +442,6 @@
   "tag.invalid": "Not a valid OpenSpool Tag",
   "tag.save.spool": "Save as Spool",
   "tag.raw.json": "Raw Data (JSON)",
-
   "inventory.title": "Inventory",
   "inventory.start.title": "Start Inventory",
   "inventory.start.hint": "Scan two tags in sequence to change the assignment.",
@@ -498,7 +478,6 @@
   "inventory.type.spool": "Spool",
   "inventory.type.printer": "Printer",
   "inventory.type.storage": "Storage",
-
   "printer.title": "Printers",
   "printer.add": "Add Printer",
   "printer.edit": "Edit Printer",
@@ -506,7 +485,6 @@
   "printer.delete.confirm": "Delete this printer?",
   "printer.name": "Name",
   "printer.notes": "Notes",
-
   "storage.title": "Storage Locations",
   "storage.add": "Add Storage",
   "storage.edit": "Edit Storage",
@@ -514,7 +492,6 @@
   "storage.delete.confirm": "Delete this storage location?",
   "storage.name": "Name",
   "storage.description": "Description",
-
   "common.save": "Save",
   "common.cancel": "Cancel",
   "common.delete": "Delete",
@@ -550,7 +527,6 @@
   "spool.nfc.import.no.match": "No matching material found for {brand} {type}. Please select manually.",
   "spool.nfc.scanning": "Waiting for NFC tag…",
   "spool.nfc.error": "NFC error. Please try again.",
-
   "dashboard.by.location": "Spools by Location",
   "dashboard.no.location": "No Location",
   "dashboard.onboarding.title": "Quick start",
@@ -564,9 +540,7 @@
   "dashboard.onboarding.step.inventory": "Open Inventory, scan the spool tag and then the storage tag to place the spool into storage.",
   "dashboard.onboarding.done": "Done",
   "dashboard.onboarding.pending": "Open",
-
   "common.image.upload.success": "Image uploaded successfully.",
-
   "landing.tagline.short": "Filament Management for 3D Printers",
   "landing.hero.headline": "Your Filaments. Always Under Control.",
   "landing.hero.subline": "SpoolHero is the free solution for managing your 3D printing filament spools – clear, mobile-friendly, for individuals & teams.",
@@ -587,36 +561,66 @@
   "landing.feature.selfhost.title": "Modern & Reliable",
   "landing.feature.selfhost.desc": "Built on .NET 8 and Blazor WebAssembly – fast, modern, and secure. Runs in the browser, works on desktop and mobile. Regular updates and active development.",
   "landing.tech.label": "Technologies",
-
   "landing.free.title": "Free. For Everyone.",
   "landing.free.desc": "SpoolHero is free to use – for individuals and teams alike. No hidden costs, no subscription model. The project is funded by voluntary community donations and affiliate links to recommended products.",
   "landing.free.funded.donations": "Community Donations",
   "landing.free.funded.affiliate": "Affiliate Links",
-
   "landing.nfc.android.note": "Writing NFC tags requires Android – iOS does not support NFC tag writing from the browser. A native app is planned based on demand.",
   "landing.nfc.android.note.short": "NFC writing is Android-only. iOS is not supported.",
-
   "landing.openspool.title": "OpenSpool Standard",
   "landing.openspool.desc": "SpoolHero implements the open OpenSpool standard – a unified JSON format for filament data on NFC tags (NTAG215/216). Compatible with other tools and printers that use the same standard.",
   "landing.openspool.github": "OpenSpool on GitHub",
-
   "landing.ntag.title": "Recommended for NTAG215/216",
   "landing.ntag.desc": "Use writable NTAG215/216 NFC tags for printers, storage locations, and spools. Adhesive tags are the easiest option for mounting.",
   "landing.ntag.link": "Open recommendation",
-
   "landing.opensource.title": "Open Source",
   "landing.opensource.desc": "SpoolHero is open source and free to self-host. Run your own instance on your own hardware – full control over your data. Contributions are welcome.",
   "landing.opensource.github": "View on GitHub",
-
   "landing.tos.title": "Terms of Use",
   "landing.tos.desc": "By using SpoolHero, you agree to our terms of use. SpoolHero is provided without warranty – use is at your own risk. Affiliate links on this site help fund the service.",
   "landing.tos.link": "Read full Terms of Use",
-
   "auth.terms.accept": "I accept the",
   "auth.privacy.accept": "I have read and agree to the",
   "auth.terms.required": "Please accept the Terms of Use and Privacy Policy.",
-
   "admin.settings.catalog.label": "Show OpenFilamentDB materials",
   "admin.settings.catalog.hint": "Disable to show only materials created in each project in material lists and pickers. Existing spools keep their materials. Catalog syncing is disabled too.",
-  "admin.settings.catalog.disabled": "OpenFilamentDB is disabled. Global materials are hidden from project material lists and pickers; existing spools keep their materials. To enable catalog syncing, open"
+  "admin.settings.catalog.disabled": "OpenFilamentDB is disabled. Global materials are hidden from project material lists and pickers; existing spools keep their materials. To enable catalog syncing, open",
+  "integration.description": "Connect paxx12 firmware to this project and record usage against each individual spool.",
+  "integration.admin.required": "A project administrator can set up the printer connection.",
+  "integration.connection": "Printer usage tracking",
+  "integration.enabled": "Connection enabled",
+  "integration.disabled": "Not connected yet",
+  "integration.refresh": "Refresh status",
+  "integration.local.hint": "You can prepare your inventory now and connect the printer later. SpoolHero must be running and reachable on your network while printing.",
+  "integration.create": "Create connection address",
+  "integration.replace": "Replace connection address",
+  "integration.disable": "Disable connection",
+  "integration.replace.hint": "The previous address will stop working. Update the address on every connected printer.",
+  "integration.disable.hint": "This stops automatic usage tracking. Your saved spools remain available.",
+  "integration.address.title": "Your printer connection address",
+  "integration.address.secret": "Keep this address private: it allows access to this project’s spool information and usage updates. It is shown only when created.",
+  "integration.server.address": "SpoolHero server address on your network",
+  "integration.copy.address": "Paste this into paxx12’s Spoolman URL setting",
+  "integration.copy": "Copy address",
+  "integration.copied": "Copied",
+  "integration.address.help": "Use the Docker server’s LAN address and published port, for example http://192.168.1.100:8080. A localhost address only works on this computer.",
+  "integration.existing.address": "The address is hidden after creation. If you no longer have it, replace it and update the printer.",
+  "integration.last.seen": "Last printer contact",
+  "integration.last.usage": "Last usage update",
+  "integration.connections": "Active connections",
+  "integration.not.yet": "Not yet",
+  "integration.setup.title": "When your printer is ready",
+  "integration.setup.1": "In SpoolHero, give each material its correct diameter and density. Add your spools and link their NFC tag UIDs. Two tags can be paired through paxx12’s Filament Manager.",
+  "integration.setup.2": "Create a connection address above. On the printer, open firmware-config → Settings → Snapmaker Components → Spoolman Integration. Enable it and paste the address.",
+  "integration.setup.3": "Load a tagged spool and confirm the correct spool in the printer’s Filament Manager. Use Sync Filament in regular Snorca.",
+  "integration.setup.4": "Print a small test and check the remaining grams here. Usage is estimated from extruded filament and saved in SpoolHero. The NFC tag identifies the spool; remaining weight is not written to the tag.",
+  "integration.spools.title": "Spools available to the printer",
+  "integration.spools.hint": "Printer IDs and paired tag UIDs are included in inventory backups. After moving to Docker, create a new connection address.",
+  "integration.spools.empty": "Add a spool to this project to prepare it for the printer.",
+  "integration.tags": "NFC tags",
+  "integration.no.tags": "No tag linked yet",
+  "integration.material.incomplete": "Set this material’s density and diameter before using automatic tracking.",
+  "integration.copy.manual": "Your browser could not copy the address. Select it above and copy it manually.",
+  "integration.spools.disabled": "Create a connection to prepare printer IDs for this project’s spools.",
+  "integration.spools.limit": "This firmware looks up tags among the first 1,000 active spools. A larger library needs explicit spool selection or a firmware update."
 }

@@ -376,3 +376,46 @@
         transition-duration: 0.01ms !important;
     }
 }
+
+/* Spool editor selections stay readable and easy to tap on narrow screens. */
+.spool-choice-fieldset {
+    min-width: 0;
+}
+
+.spool-choice-fieldset legend {
+    float: none;
+    width: auto;
+    font-size: 1rem;
+    margin-bottom: .5rem;
+}
+
+.spool-choice-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    min-width: 0;
+}
+
+.spool-choice-button {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    min-height: 44px;
+    max-width: 100%;
+    text-align: left;
+    white-space: normal;
+}
+
+.spool-choice-button span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.spool-choice-check {
+    flex: 0 0 1rem;
+}
+
+.spool-weighed-input {
+    flex: 1 1 10rem;
+    min-width: 0;
+}

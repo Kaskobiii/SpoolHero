@@ -51,6 +51,8 @@ builder.Services.AddScoped<ISmtpSettingsRepository, SmtpSettingsRepository>();
 builder.Services.AddScoped<ISiteSettingsRepository, SiteSettingsRepository>();
 builder.Services.AddScoped<IMaterialCatalogSettings, MaterialCatalogSettings>();
 builder.Services.AddScoped<IBackupService, BackupService>();
+builder.Services.AddScoped<SpoolmanService>();
+builder.Services.AddSingleton<SpoolmanConnections>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHostedService<NotificationBackgroundService>();
 
@@ -150,11 +152,18 @@ app.MapGet("/favicon.ico", async (ISiteSettingsRepository settings, HttpContext 
 
 app.UseStaticFiles();
 
+app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(10), KeepAliveTimeout = TimeSpan.FromSeconds(10) });
 app.UseAuthentication();
 app.UseMiddleware<UserActivityMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
+// A misspelled compatibility URL must never return the application HTML.
+app.Map("/api/spoolman/{**path}", async (HttpContext ctx) =>
+{
+    ctx.Response.StatusCode = 404;
+    await ctx.Response.WriteAsJsonAsync(new { message = "Not found." });
+});
 
 var webRoot = app.Environment.WebRootPath
     ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");

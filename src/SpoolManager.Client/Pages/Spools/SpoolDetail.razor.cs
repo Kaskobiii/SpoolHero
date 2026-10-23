@@ -22,7 +22,10 @@ public partial class SpoolDetail : IDisposable
     private SpoolDto? _spool;
     private bool _showRemainingForm;
     private decimal _remainingGrams;
-    private decimal _remainingPct;
+    private decimal? _weighedTotalGrams;
+    private DateTime? _expectedUpdatedAt;
+    private string? _remainingError;
+    private bool _savingRemaining;
     private bool _nfcSupported;
     private bool _writingNfc;
     private string? _nfcMessage;
@@ -45,7 +48,7 @@ public partial class SpoolDetail : IDisposable
         if (_spool != null)
         {
             _remainingGrams = _spool.RemainingWeightGrams;
-            _remainingPct = _spool.RemainingPercent;
+            _expectedUpdatedAt = _spool.UpdatedAt;
         }
         _nfcSupported = await Nfc.CheckSupportAsync();
         _loading = false;
@@ -54,11 +57,52 @@ public partial class SpoolDetail : IDisposable
         _clockTimer.Start();
     }
 
+    private bool CanApplyWeighedTotal => _spool?.EmptySpoolWeightGrams is decimal tare && tare >= 0
+        && _weighedTotalGrams is decimal gross && gross >= tare;
+
+    private void ApplyWeighedTotal()
+    {
+        if (CanApplyWeighedTotal)
+            _remainingGrams = Math.Round(_weighedTotalGrams!.Value - _spool!.EmptySpoolWeightGrams!.Value, 1);
+    }
+
+    private void ShowRemainingForm()
+    {
+        if (_spool == null)
+            return;
+        _remainingGrams = _spool.RemainingWeightGrams;
+        _expectedUpdatedAt = _spool.UpdatedAt;
+        _weighedTotalGrams = null;
+        _remainingError = null;
+        _showRemainingForm = true;
+    }
+
     private async Task UpdateRemainingAsync()
     {
-        await Spools.UpdateRemainingAsync(Id, new UpdateRemainingRequest { RemainingWeightGrams = _remainingGrams, RemainingPercent = _remainingPct });
-        _spool = await Spools.GetByIdAsync(Id);
-        _showRemainingForm = false;
+        _savingRemaining = true;
+        _remainingError = null;
+        try
+        {
+            var response = await Spools.UpdateRemainingAsync(Id, new UpdateRemainingRequest
+            {
+                RemainingWeightGrams = _remainingGrams,
+                ExpectedUpdatedAt = _expectedUpdatedAt
+            });
+            if (!response.IsSuccessStatusCode)
+            {
+                _remainingError = (int)response.StatusCode == 409
+                    ? L["spool.edit.conflict"]
+                    : await response.Content.ReadAsStringAsync();
+                return;
+            }
+            _spool = await Spools.GetByIdAsync(Id);
+            _expectedUpdatedAt = _spool?.UpdatedAt;
+            _showRemainingForm = false;
+        }
+        finally
+        {
+            _savingRemaining = false;
+        }
     }
 
     private async Task MarkOpenedAsync() { await Spools.MarkOpenedAsync(Id); _spool = await Spools.GetByIdAsync(Id); }

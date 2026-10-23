@@ -17,6 +17,8 @@ public class SpoolDto
     public DateTime? DriedAt { get; set; }
     public DateTime? ConsumedAt { get; set; }
     public decimal RemainingWeightGrams { get; set; }
+    public decimal? InitialWeightGrams { get; set; }
+    public decimal? EmptySpoolWeightGrams { get; set; }
     public decimal RemainingPercent { get; set; }
     public Guid? PrinterId { get; set; }
     public string? PrinterName { get; set; }
@@ -39,6 +41,8 @@ public class CreateSpoolRequest
     public Guid FilamentMaterialId { get; set; }
     public string? RfidTagUid { get; set; }
     public decimal RemainingWeightGrams { get; set; }
+    public decimal? InitialWeightGrams { get; set; }
+    public decimal? EmptySpoolWeightGrams { get; set; }
     public decimal RemainingPercent { get; set; } = 100;
     public Guid? PrinterId { get; set; }
     public Guid? StorageLocationId { get; set; }
@@ -54,6 +58,9 @@ public class UpdateSpoolRequest
 {
     public Guid FilamentMaterialId { get; set; }
     public decimal RemainingWeightGrams { get; set; }
+    public decimal? InitialWeightGrams { get; set; }
+    public decimal? EmptySpoolWeightGrams { get; set; }
+    public DateTime? ExpectedUpdatedAt { get; set; }
     public decimal RemainingPercent { get; set; }
     public string? RfidTagUid { get; set; }
     public Guid? PrinterId { get; set; }
@@ -69,5 +76,6 @@ public class UpdateSpoolRequest
 public class UpdateRemainingRequest
 {
     public decimal RemainingWeightGrams { get; set; }
+    public DateTime? ExpectedUpdatedAt { get; set; }
     public decimal RemainingPercent { get; set; }
 }

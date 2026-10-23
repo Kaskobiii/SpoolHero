@@ -69,8 +69,7 @@ public class NotificationBackgroundService : BackgroundService
         {
             var members = await users.GetProjectMembersAsync(spool.ProjectId);
             await email.NotifySpoolLowAsync(spool, members);
-            spool.LowSpoolNotifiedAt = DateTime.UtcNow;
-            await spools.UpdateAsync(spool);
+            await spools.MarkLowNotificationAsync(spool.Id);
         }
     }
 }

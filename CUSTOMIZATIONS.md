@@ -48,6 +48,12 @@ On a new Docker installation, sign in as the platform administrator, open **Back
 
 Accounts/passwords, memberships/invitations, other users' private favorites, audit/support records and server/email secrets stay with each installation. See [docs/BACKUP.md](docs/BACKUP.md) for the complete procedure and limits.
 
+## Printer usage tracking and simpler spool controls
+
+Open **Printer connection** from the account or mobile menu. The opt-in, project-scoped connection provides the Spoolman API operations used by paxx12 v1.6 SpoolLink and Moonraker, including its required WebSocket connection. Tag UIDs and stable numeric printer IDs resolve to the existing SpoolHero spools; accepted usage reports atomically subtract estimated filament grams. Initial net filament weight and optional empty reel/tare weight are separate from remaining net grams. Material density and diameter are required for length-to-weight conversion. See [docs/SPOOLMAN.md](docs/SPOOLMAN.md) for setup, security, transfer and compatibility limits.
+
+Remaining amounts are edited and displayed in grams throughout the app and notifications. The old percentage field remains internal for progress bars, low-stock behavior and older backups, and is derived from grams. The editor offers wrapping owner/location buttons with selected checkmarks, plus an optional weighed-total minus empty-reel calculator. Optimistic version checks prevent an older editor from overwriting newer printer consumption. Support and ticket navigation and ticket notification controls are removed from this personal fork.
+
 ## Verification
 
 The Release server/client build and publish passed using .NET SDK 10.0.402. Migration 17 and API behavior were checked against an isolated MariaDB 11.8 database. Docker itself is not installed in the verification environment, so an image build/container launch was not performed.
@@ -71,3 +77,5 @@ These scripts create uniquely named projects and sample data for inspection. The
 The upstream build emits dependency vulnerability warnings and an existing unawaited-call warning. Those dependency upgrades are outside this customization.
 
 A two-instance transfer test is available in `tests/inventory_backup_smoke.py`. Run it only against two disposable instances using the source/destination URL and credential variables described at its top. It checks complete inventory roundtrips, Unicode, images, retained NFC IDs, collision protection, malformed files, and transaction rollback. Optional explicitly named test databases enable real mid-restore failure injection.
+
+The printer integration regression in `tests/spoolman_compat_smoke.py` requires two disposable servers. It tests the native paxx12 field/UID contract, Moonraker WebSocket keepalive/events, concurrent and fractional usage, grams validation, stale edits, token scope/revocation and backup preservation of numeric ID high-water marks. Actual hardware verification is pending until the printer is installed.

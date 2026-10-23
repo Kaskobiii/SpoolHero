@@ -11,6 +11,8 @@ public interface ISpoolRepository
     Task<Spool?> GetByIdAsync(Guid id);
     Task<Guid> CreateAsync(Spool spool);
     Task UpdateAsync(Spool spool);
+    Task<bool> TryUpdateAsync(Spool spool, DateTime expectedUpdatedAt);
+    Task MarkLowNotificationAsync(Guid spoolId);
     Task DeleteAsync(Guid id);
     Task<int> GetTotalCountAsync();
     Task<List<Spool>> GetSpoolsNeedingLowNotificationAsync();
@@ -132,6 +134,37 @@ public class SpoolRepository : ISpoolRepository
 
     public async Task UpdateAsync(Spool spool) =>
         await _db.UpdateAsync(spool);
+
+    // A printer report may arrive while an editor or inventory action is open.
+    // Compare the version rather than restoring an older remaining weight.
+    public async Task<bool> TryUpdateAsync(Spool spool, DateTime expectedUpdatedAt) =>
+        await _db.Spools.Where(s => s.Id == spool.Id && s.ProjectId == spool.ProjectId && s.UpdatedAt == expectedUpdatedAt)
+            .Set(s => s.FilamentMaterialId, spool.FilamentMaterialId)
+            .Set(s => s.RfidTagUid, spool.RfidTagUid)
+            .Set(s => s.InitialWeightGrams, spool.InitialWeightGrams)
+            .Set(s => s.EmptySpoolWeightGrams, spool.EmptySpoolWeightGrams)
+            .Set(s => s.RemainingWeightGrams, spool.RemainingWeightGrams)
+            .Set(s => s.RemainingPercent, spool.RemainingPercent)
+            .Set(s => s.OwnerId, spool.OwnerId)
+            .Set(s => s.PrinterId, spool.PrinterId)
+            .Set(s => s.StorageLocationId, spool.StorageLocationId)
+            .Set(s => s.DryerId, spool.DryerId)
+            .Set(s => s.OpenedAt, spool.OpenedAt)
+            .Set(s => s.RepackagedAt, spool.RepackagedAt)
+            .Set(s => s.ReopenedAt, spool.ReopenedAt)
+            .Set(s => s.DriedAt, spool.DriedAt)
+            .Set(s => s.ConsumedAt, spool.ConsumedAt)
+            .Set(s => s.PurchasedAt, spool.PurchasedAt)
+            .Set(s => s.PurchasePrice, spool.PurchasePrice)
+            .Set(s => s.ReorderUrl, spool.ReorderUrl)
+            .Set(s => s.Notes, spool.Notes)
+            .Set(s => s.LowSpoolNotifiedAt, spool.LowSpoolNotifiedAt)
+            .Set(s => s.UpdatedAt, spool.UpdatedAt)
+            .UpdateAsync() == 1;
+
+    public async Task MarkLowNotificationAsync(Guid spoolId) =>
+        await _db.Spools.Where(s => s.Id == spoolId)
+            .Set(s => s.LowSpoolNotifiedAt, DateTime.UtcNow).UpdateAsync();
 
     public async Task DeleteAsync(Guid id) =>
         await _db.Spools.Where(s => s.Id == id).DeleteAsync();
