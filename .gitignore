@@ -52,3 +52,7 @@ CURSOR.md
 # Python regression checks
 __pycache__/
 *.pyc
+
+# Local Docker configuration and private inventory backups
+.env
+backups/

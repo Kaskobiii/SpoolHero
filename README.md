@@ -24,21 +24,19 @@ git clone https://github.com/Kaskobiii/SpoolHero.git
 cd SpoolHero
 ```
 
-Create `.env` containing a database password:
-
-```dotenv
-MYSQL_ROOT_PASSWORD=choose-a-database-password
-```
-
-Then start the application:
+Start the published fork image with:
 
 ```sh
-docker compose up -d --build
+bash scripts/install.sh
 ```
 
-Open `http://<server-ip>:5000`. A fresh installation creates a shared inventory automatically. No application credentials or JWT secret are needed. The database password is for the internal database connection.
+Open `http://<server-ip>:5000`, then import your temporary app's **Export all** file under **Settings → Backup & transfer**. Update later with:
 
-To move your inventory from the temporary local app, use **Settings → Backup & transfer → Export all**, then import that file on Docker. See [backup instructions](docs/BACKUP.md). After importing, open the imported project.
+```sh
+bash scripts/update.sh
+```
+
+The update command backs up the database and replaces the app container while retaining saved inventory. See the [Docker installation and update guide](docs/DOCKER.md), including the one-time GitHub Actions/package visibility setup and recovery instructions.
 
 ## Upgrade an existing installation
 

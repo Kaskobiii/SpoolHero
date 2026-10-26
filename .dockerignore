@@ -14,3 +14,8 @@ Dockerfile
 .dockerignore
 .mcp.json
 PLAN_NEW_FEATURES.md
+.env
+.env.*
+backups/
+tests/
+.github/
