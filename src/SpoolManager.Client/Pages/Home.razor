@@ -1,12 +1,5 @@
 @page "/"
 
-@if (!Auth.IsAuthenticated)
-{
-    <PageTitle>@L["auth.login"] – @L["app.name"]</PageTitle>
-    <div class="text-center py-5"><div class="spinner-border"></div></div>
-    return;
-}
-
 <PageTitle>@L["nav.dashboard"] – @L["app.name"]</PageTitle>
 
 <div class="page-header">

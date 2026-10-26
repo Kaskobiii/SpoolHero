@@ -13,7 +13,6 @@ public partial class AdminSettings
     [Inject] private MaterialService Materials { get; set; } = default!;
     [Inject] private LocalizationService L { get; set; } = default!;
 
-    private bool _landingEnabled = true;
     private MaterialCatalogSettingsDto? _materialCatalog;
     private bool _catalogSaving;
     private bool? _catalogSuccess;
@@ -42,12 +41,6 @@ public partial class AdminSettings
         {
             _catalogSaving = false;
         }
-    }
-
-    private async Task SaveLandingPageAsync()
-    {
-        await Admin.SetLandingPageEnabledAsync(_landingEnabled);
-        await Branding.RefreshAsync();
     }
 
     private bool _brandingSaving;
@@ -181,7 +174,6 @@ public partial class AdminSettings
     {
         if (Auth.CurrentUser?.IsPlatformAdmin != true)
             return;
-        _landingEnabled = Branding.LandingPageEnabled;
         _materialCatalog = await Admin.GetMaterialCatalogSettingsAsync();
         _smtp = await Admin.GetSmtpSettingsAsync() ?? new SmtpSettingsDto();
         _smtpLoading = false;

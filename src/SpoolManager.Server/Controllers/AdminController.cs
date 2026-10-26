@@ -124,85 +124,6 @@ public class AdminController : ControllerBase
         CreatedAt = m.CreatedAt, UpdatedAt = m.UpdatedAt
     };
 
-    [HttpGet("users")]
-    public async Task<IActionResult> GetAllUsers()
-    {
-        if (!IsPlatformAdmin())
-            return Forbid();
-        var users = await _users.GetAllAsync();
-        return Ok(users.Select(u => new AdminUserDto
-        {
-            Id = u.Id, Username = u.Username, Email = u.Email,
-            IsPlatformAdmin = u.IsPlatformAdmin, IsSuperAdmin = u.IsSuperAdmin,
-            EmailVerified = u.EmailVerified,
-            CreatedAt = u.CreatedAt, LastActiveAt = u.LastActiveAt
-        }));
-    }
-
-    [HttpPut("users/{id}/admin")]
-    public async Task<IActionResult> SetAdminStatus(Guid id, [FromBody] SetAdminRequest request)
-    {
-        if (!IsPlatformAdmin())
-            return Forbid();
-        if (id == UserId)
-            return BadRequest("Cannot change own admin status.");
-        var user = await _users.GetByIdAsync(id);
-        if (user == null)
-            return NotFound();
-        if (user.IsSuperAdmin)
-            return BadRequest("Cannot change the main admin's status.");
-
-        await _users.SetAdminAsync(id, request.IsAdmin, user.TokenVersion + 1);
-        await _audit.LogAsync(request.IsAdmin ? "admin.user.promote" : "admin.user.demote",
-            userId: UserId, username: UserName,
-            entityType: "user", entityId: id.ToString(), entityName: user.Username,
-            ipAddress: ClientIp);
-        return NoContent();
-    }
-
-    [HttpDelete("users/{id}")]
-    public async Task<IActionResult> DeleteUser(Guid id)
-    {
-        if (!IsPlatformAdmin())
-            return Forbid();
-        if (id == UserId)
-            return BadRequest("Cannot delete own account.");
-        var user = await _users.GetByIdAsync(id);
-        if (user == null)
-            return NotFound();
-        if (user.IsSuperAdmin)
-            return BadRequest("Cannot delete the main admin.");
-
-        await _audit.LogAsync("admin.user.delete",
-            userId: UserId, username: UserName,
-            entityType: "user", entityId: id.ToString(), entityName: user.Username,
-            ipAddress: ClientIp);
-
-        await _users.DeleteAsync(id);
-        return NoContent();
-    }
-
-    [HttpPut("users/{id}/onboarding/reset")]
-    public async Task<IActionResult> ResetUserOnboarding(Guid id)
-    {
-        if (!IsPlatformAdmin())
-            return Forbid();
-
-        var user = await _users.GetByIdAsync(id);
-        if (user == null)
-            return NotFound();
-
-        user.DashboardOnboardingDismissed = false;
-        await _users.UpdateAsync(user);
-
-        await _audit.LogAsync("admin.user.onboarding.reset",
-            userId: UserId, username: UserName,
-            entityType: "user", entityId: id.ToString(), entityName: user.Username,
-            ipAddress: ClientIp);
-
-        return NoContent();
-    }
-
     [HttpGet("settings/legal")]
     public async Task<IActionResult> GetLegalSettings()
     {
@@ -361,15 +282,6 @@ public class AdminController : ControllerBase
         if (!IsPlatformAdmin())
             return Forbid();
         await _siteSettings.SetAsync("branding_logo_dark", null);
-        return NoContent();
-    }
-
-    [HttpPut("settings/landing-page")]
-    public async Task<IActionResult> SetLandingPage([FromBody] SetLandingPageRequest request)
-    {
-        if (!IsPlatformAdmin())
-            return Forbid();
-        await _siteSettings.SetAsync("landing_page_enabled", request.Enabled ? "true" : "false");
         return NoContent();
     }
 

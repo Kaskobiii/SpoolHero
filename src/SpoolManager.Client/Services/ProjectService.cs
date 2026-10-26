@@ -20,24 +20,11 @@ public class ProjectService
 
     public async Task InitializeAsync()
     {
-        try
-        {
-            var stored = await _js.InvokeAsync<string?>("localStorage.getItem", "project_id");
-            if (!Guid.TryParse(stored, out var projectId)) return;
-
-            var projects = await GetMyProjectsAsync();
-            var match = projects?.FirstOrDefault(p => p.Id == projectId);
-            if (match != null)
-            {
-                var projectChanged = CurrentProject?.Id != match.Id;
-                CurrentProject = match;
-                SetProjectHeader(match.Id);
-
-                if (projectChanged)
-                    OnProjectChanged?.Invoke();
-            }
-        }
-        catch { }
+        var projects = await GetMyProjectsAsync() ?? [];
+        var stored = await _js.InvokeAsync<string?>("localStorage.getItem", "project_id");
+        var selected = Guid.TryParse(stored, out var id) ? projects.FirstOrDefault(p => p.Id == id) : null;
+        selected ??= projects.OrderBy(p => p.CreatedAt).FirstOrDefault();
+        if (selected != null) await SwitchProjectAsync(selected);
     }
 
     public Task<List<ProjectDto>?> GetMyProjectsAsync() =>
@@ -51,15 +38,6 @@ public class ProjectService
 
     public Task<HttpResponseMessage> DeleteAsync(Guid id) =>
         _http.DeleteAsync($"api/projects/{id}");
-
-    public Task<List<ProjectMemberDto>?> GetMembersAsync(Guid projectId) =>
-        _http.GetFromJsonAsync<List<ProjectMemberDto>>($"api/projects/{projectId}/members");
-
-    public Task<HttpResponseMessage> RemoveMemberAsync(Guid projectId, Guid userId) =>
-        _http.DeleteAsync($"api/projects/{projectId}/members/{userId}");
-
-    public Task<HttpResponseMessage> UpdateMemberRoleAsync(Guid projectId, Guid userId, UpdateMemberRoleRequest request) =>
-        _http.PutAsJsonAsync($"api/projects/{projectId}/members/{userId}/role", request);
 
     public async Task SwitchProjectAsync(ProjectDto project)
     {

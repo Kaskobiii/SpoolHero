@@ -6,9 +6,10 @@
         <div class="spinner-border text-primary" role="status"></div>
     </div>
 }
-else if (!Auth.IsAuthenticated)
+else if (_startupError)
 {
-    @Body
+    <div class="container py-5"><div class="alert alert-danger" role="alert">@L["local.unavailable"]</div>
+        <button class="btn btn-primary" @onclick="Reload">@L["common.retry"]</button></div>
 }
 else
 {
@@ -105,7 +106,6 @@ else
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><NavLink class="dropdown-item" href="/admin" Match="NavLinkMatch.All"><i class="bi bi-speedometer2 me-2"></i>@L["nav.admin.dashboard"]</NavLink></li>
-                                <li><NavLink class="dropdown-item" href="/admin/users"><i class="bi bi-people me-2"></i>@L["nav.admin.users"]</NavLink></li>
                                 <li><NavLink class="dropdown-item" href="/admin/materials"><i class="bi bi-database me-2"></i>@L["nav.admin"]</NavLink></li>
                                 <li><NavLink class="dropdown-item" href="/admin/suggestions"><i class="bi bi-lightbulb me-2"></i>@L["admin.suggestions"]</NavLink></li>
                                 <li><NavLink class="dropdown-item" href="/admin/audit"><i class="bi bi-journal-text me-2"></i>@L["admin.audit.title"]</NavLink></li>
@@ -120,20 +120,12 @@ else
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" @onclick:preventDefault>
-                            <i class="bi bi-person-circle me-1"></i><span class="d-none d-xl-inline">@Auth.CurrentUser?.Username</span>
+                            <i class="bi bi-gear me-1"></i>@L["local.settings"]
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/settings/account"><i class="bi bi-person-gear me-2"></i>@L["nav.settings.account"]</a></li>
-                            <li><a class="dropdown-item" href="/settings/password"><i class="bi bi-key me-2"></i>@L["auth.change.password"]</a></li>
                             <li><a class="dropdown-item" href="/settings/notifications"><i class="bi bi-bell me-2"></i>@L["settings.notifications.title"]</a></li>
                             <li><NavLink class="dropdown-item" href="/settings/printer-integration"><i class="bi bi-plug me-2"></i>@L["nav.printer.connection"]</NavLink></li>
                             <li><NavLink class="dropdown-item" href="/backup"><i class="bi bi-cloud-arrow-down me-2"></i>@L["backup.title"]</NavLink></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <button class="dropdown-item text-danger" @onclick="LogoutAsync">
-                                    <i class="bi bi-box-arrow-right me-2"></i>@L["nav.logout"]
-                                </button>
-                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -216,7 +208,6 @@ else
                         <small class="text-muted fw-semibold text-uppercase px-2" style="font-size:.7rem">@L["nav.group.admin"]</small>
                     </li>
                     <li class="nav-item"><NavLink class="nav-link py-1" href="/admin" Match="NavLinkMatch.All" @onclick="CloseOffcanvas"><i class="bi bi-speedometer2 me-2"></i>@L["nav.admin.dashboard"]</NavLink></li>
-                    <li class="nav-item"><NavLink class="nav-link py-1" href="/admin/users" @onclick="CloseOffcanvas"><i class="bi bi-people me-2"></i>@L["nav.admin.users"]</NavLink></li>
                     <li class="nav-item"><NavLink class="nav-link py-1" href="/admin/materials" @onclick="CloseOffcanvas"><i class="bi bi-database me-2"></i>@L["nav.admin"]</NavLink></li>
                     <li class="nav-item"><NavLink class="nav-link py-1" href="/admin/suggestions" @onclick="CloseOffcanvas"><i class="bi bi-lightbulb me-2"></i>@L["admin.suggestions"]</NavLink></li>
                     <li class="nav-item"><NavLink class="nav-link py-1" href="/admin/audit" @onclick="CloseOffcanvas"><i class="bi bi-journal-text me-2"></i>@L["admin.audit.title"]</NavLink></li>
@@ -224,20 +215,10 @@ else
                 }
 
                 <li class="nav-item mt-2">
-                    <small class="text-muted fw-semibold text-uppercase px-2" style="font-size:.7rem">@L["nav.group.account"]</small>
+                    <small class="text-muted fw-semibold text-uppercase px-2" style="font-size:.7rem">@L["local.settings"]</small>
                 </li>
                 <li class="nav-item mt-1"><ThemeToggle /></li>
                 <li class="nav-item mt-1"><LanguageSelector /></li>
-                <li class="nav-item mt-1">
-                    <a class="btn btn-outline-secondary w-100" href="/settings/account" @onclick="CloseOffcanvas">
-                        <i class="bi bi-person-gear me-2"></i>@L["nav.settings.account"]
-                    </a>
-                </li>
-                <li class="nav-item mt-1">
-                    <a class="btn btn-outline-secondary w-100" href="/settings/password" @onclick="CloseOffcanvas">
-                        <i class="bi bi-key me-2"></i>@L["auth.change.password"]
-                    </a>
-                </li>
                 <li class="nav-item mt-1">
                     <a class="btn btn-outline-secondary w-100" href="/settings/notifications" @onclick="CloseOffcanvas">
                         <i class="bi bi-bell me-2"></i>@L["settings.notifications.title"]
@@ -253,11 +234,6 @@ else
                         <i class="bi bi-cloud-arrow-down me-2"></i>@L["backup.title"]
                     </NavLink>
                 </li>
-                <li class="nav-item mt-2">
-                    <button class="btn btn-outline-danger w-100" @onclick="LogoutAsync">
-                        <i class="bi bi-box-arrow-right me-2"></i>@L["nav.logout"]
-                    </button>
-                </li>
             </ul>
         </div>
     </div>
@@ -266,8 +242,7 @@ else
         <div @key="_languageKey">@Body</div>
     </main>
 
-    @if (!_showCookieBanner)
-    {
+    
         <nav class="mobile-quick-actions d-lg-none" role="navigation" aria-label="@L["mobile.quick.actions"]">
             <NavLink class="mobile-quick-action" href="/" Match="NavLinkMatch.All">
                 <i class="bi bi-house" aria-hidden="true"></i>
@@ -286,7 +261,7 @@ else
                 <span>@L["tag.read"]</span>
             </NavLink>
         </nav>
-    }
+    
 
     <footer class="text-center text-muted py-3" style="font-size:.8rem; border-top: 1px solid var(--bs-border-color);">
         <a href="/changelog" class="text-muted me-3">@L["nav.changelog"]</a>
@@ -295,14 +270,6 @@ else
         <a href="/terms" class="text-muted">@L["legal.terms.title"]</a>
     </footer>
 
-    @if (_showCookieBanner)
-    {
-        <div class="position-fixed bottom-0 start-0 end-0 p-3" style="z-index:1060; background:var(--bs-body-bg); border-top:1px solid var(--bs-border-color);">
-            <div class="container-fluid d-flex align-items-center gap-3 flex-wrap">
-                <span class="flex-grow-1 small">@L["cookie.banner.text"] <a href="/privacy">@L["legal.privacy.title"]</a></span>
-                <button class="btn btn-primary btn-sm" @onclick="DismissCookieBanner">@L["cookie.banner.ok"]</button>
-            </div>
-        </div>
-    }
+    
 }
 

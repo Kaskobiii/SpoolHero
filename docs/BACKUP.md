@@ -1,24 +1,20 @@
 # Backup and transfer
 
-Use **Export all** at the top of the Spools page, or open **Backup & transfer** from your account menu. The same page is available from the mobile menu and before selecting a project.
+Open **Settings → Backup & transfer**, or **Export all** at the top of the Spools page. The same tools are available in the mobile menu.
 
-## Save your inventory
-
-Click **Export all** on the backup page to download one JSON file. It contains all projects where you have the Admin role, including their spools, owners, materials, printers, storage locations, dryers, photos and your material favorites. Spool notes, remaining amounts, dates, IDs and tag associations travel with the inventory.
-
-Login accounts, passwords, project membership and server settings such as email configuration are excluded. Invite your other printer users again after transferring.
+**Export all** downloads one JSON file containing every project's materials, spools, owners, printers, storage locations, dryers, photos and shared favorites. Notes, net grams, original filament and empty reel weights, lifecycle dates, inventory GUIDs, NFC UIDs and stable numeric printer IDs travel with it. The next unused printer ID and fractional usage are preserved too.
 
 ## Move to Docker
 
-1. Export your current inventory and keep the downloaded JSON file.
-2. Start your Docker installation and sign in with its server administrator account.
-3. Open **Backup & transfer**. You can do this before creating a project.
-4. Choose the JSON file. Check the displayed project and inventory counts.
-5. Optionally select **Also restore the OpenFilamentDB preference**.
-6. Click **Import backup**, then **Open imported inventory**.
+1. Export the local inventory and keep the JSON file.
+2. Start a fresh Docker installation of this fork and open its web page. No sign-in is needed.
+3. Open **Backup & transfer** and choose the saved file.
+4. Check the counts, optionally restore the OpenFilamentDB preference, then click **Import backup**.
+5. Click **Open imported inventory** and verify your spools before retiring the local installation.
+6. Create a new private address in **Printer connection** and update the printer's Spoolman URL when the printer is ready.
 
-Import creates the saved projects and keeps the original inventory IDs and relationships. Your imported favorites belong to the account performing the import. Existing records with the same IDs prevent the import; the file is applied as a single operation, so a rejected import leaves the inventory unchanged. A fresh installation is the easiest destination.
+Imports create the saved projects and preserve their IDs and relationships. Conflicting inventory IDs reject the entire import without overwriting data. A fresh installation is the easiest destination. A rejected import leaves the inventory unchanged.
 
-Backup files can be up to 64 MB. This inventory export is separate from backing up your Docker database volume and server configuration.
+The backup excludes old account/password records, invitations, audit/support logs, printer connection secrets and email/server settings. All imported projects are shared with everyone using the local installation. Earlier version 1 inventory backups remain supported.
 
-Printer integration backups also preserve original filament and empty spool weights, linked NFC card UIDs, fractional usage and stable numeric printer IDs (including the next unused ID). Connection secrets are excluded. After restoring to Docker, create a new address in **Printer connection** and update the printer's Spoolman URL. Earlier version 1 backups remain supported.
+Files can be up to 64 MB. Keep inventory backups somewhere you control. This export is separate from backing up the Docker database volume and server configuration.

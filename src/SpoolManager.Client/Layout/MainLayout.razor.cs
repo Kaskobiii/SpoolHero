@@ -16,64 +16,33 @@ public partial class MainLayout
     [Inject] private MaterialService MaterialSvc { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
-    private bool _showCookieBanner;
     private int _languageKey;
     private List<ProjectDto> _projects = [];
     private bool _initialLoad = true;
+    private bool _startupError;
     private bool _projectsLoaded;
 
     protected override async Task OnInitializedAsync()
     {
-        Auth.OnAuthStateChanged += OnAuthStateChanged;
         L.OnLanguageChanged += () => { _languageKey++; StateHasChanged(); };
         Project.OnProjectChanged += OnProjectChanged;
         Branding.OnBrandingChanged += StateHasChanged;
         Nav.LocationChanged += OnLocationChanged;
-        await L.InitializeAsync();
-        await Branding.InitializeAsync();
-        await Auth.InitializeAsync();
-        if (Auth.IsAuthenticated)
+        try
         {
+            await L.InitializeAsync();
+            await Branding.InitializeAsync();
+            await Auth.InitializeAsync();
             await Project.InitializeAsync();
             await LoadProjectsAsync();
             CheckProjectRedirect();
             _ = MaterialSvc.EnsureCacheAsync();
         }
-        _initialLoad = false;
-        var dismissed = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", "cookieBannerDismissed");
-        _showCookieBanner = dismissed != "1";
+        catch { _startupError = true; }
+        finally { _initialLoad = false; }
     }
 
-    private async Task DismissCookieBanner()
-    {
-        _showCookieBanner = false;
-        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "cookieBannerDismissed", "1");
-    }
-
-    private void OnAuthStateChanged()
-    {
-        if (_initialLoad)
-        {
-            StateHasChanged();
-            return;
-        }
-        if (Auth.IsAuthenticated)
-        {
-            _ = InvokeAsync(async () =>
-            {
-                _projectsLoaded = false;
-                await Project.InitializeAsync();
-                await LoadProjectsAsync();
-                CheckProjectRedirect();
-                StateHasChanged();
-            });
-        }
-        else
-        {
-            _projectsLoaded = false;
-            StateHasChanged();
-        }
-    }
+    private void Reload() => Nav.NavigateTo(Nav.Uri, forceLoad: true);
 
     private void OnProjectChanged()
     {
@@ -102,7 +71,7 @@ public partial class MainLayout
     }
 
     private static readonly string[] AllowedWithoutProject =
-        ["/projects", "/backup", "/settings", "/admin", "/tickets", "/login", "/register", "/verify-email", "/forgot-password", "/reset-password", "/privacy", "/imprint", "/terms", "/changelog"];
+        ["/projects", "/backup", "/settings", "/admin", "/privacy", "/imprint", "/terms", "/changelog"];
 
     private void CheckProjectRedirect()
     {
@@ -131,13 +100,6 @@ public partial class MainLayout
     {
         await Project.SwitchProjectAsync(p);
         Nav.NavigateTo("/");
-    }
-
-    private async Task LogoutAsync()
-    {
-        await Project.ClearProjectAsync();
-        await Auth.LogoutAsync();
-        Nav.NavigateTo("/login");
     }
 
     private async Task CloseOffcanvas()

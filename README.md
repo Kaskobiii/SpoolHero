@@ -1,139 +1,55 @@
-# SpoolHero
+# SpoolHero — shared local inventory
 
-SpoolHero is a self-hosted filament management tool for 3D printing. It allows you to track spools, materials, storage locations, and drying cycles across multiple printers and projects. NFC tags (OpenSpool standard) can be written and read directly from the browser on Android.
+A local-network fork of [Fewiel/SpoolHero](https://github.com/Fewiel/SpoolHero), customized for two people sharing a Snapmaker U1.
 
-## Custom features in this fork
-
-- **Backup & transfer:** Use **Export all** to download all inventory from projects you administer, then import it on a fresh installation. Spool IDs, NFC links, images, dates and favorites are preserved. See [the transfer guide](docs/BACKUP.md).
-- **Owners:** Open **Spools & Material → Owners** to add or rename the people sharing a printer. Select **Owner** when adding or editing a spool. The Spools page groups spools alphabetically by owner, followed by **Unassigned**. Renaming an owner updates all their spools. Existing spools start unassigned; notes are retained and displayed separately.
-- **Color variants:** Use the palette action on a material, or **Add color variant** in its editor, to copy its settings into a new color. **Save & add another color** keeps those settings for the next color. Each color is a separate material for tracking.
-- **Favorites:** The favorites filter applies before pagination, so favorites from every material page appear with accurate totals.
-- **Project-only materials:** Disable **Show OpenFilamentDB materials** in **Admin → Settings → General** to hide the global catalog in material lists and pickers. The setting persists across restarts.
-
-See [CUSTOMIZATIONS.md](CUSTOMIZATIONS.md) for upgrades and verification.
+Open the app and use the inventory immediately. There is **no login, registration, password, account management or session expiry**. Everyone who can reach this installation can manage all projects, materials, spools and settings. Favorites are shared. Use this version on your trusted local network.
 
 ## Features
 
-- Spool tracking with weight, color, material, and location
-- NFC tag support via OpenSpool standard (NTAG215/216)
-- Multi-user projects with invitation codes
-- Shared material database with import/export
-- Dryer monitoring with notifications
-- Inventory scanning via NFC
-- Admin panel with branding, SMTP, user management, and support tickets
-- Email notifications for spool levels, dryer cycles, and ticket replies
-- Self-hostable, open source, no external dependencies
+- Owners with editable names; spool lists grouped by owner.
+- Remaining filament in grams, separate original filament and optional empty reel weights, plus a scale-weight calculator.
+- Touch-friendly location and owner buttons with selected checkmarks.
+- Color variant creation without re-entering the material properties.
+- Complete favorite filtering and an optional project-material-only catalog.
+- NFC/OpenSpool tag tools, printer/storage/dryer organization, notes and lifecycle dates.
+- Full inventory export/import, preserving GUIDs, owners, photos, NFC UIDs and printer IDs.
+- An opt-in Spoolman-compatible connection for paxx12 U1 SpoolLink and Moonraker usage reports. See [printer setup](docs/SPOOLMAN.md).
 
-## Quick Start with Docker
+## Run with Docker
 
-The easiest way to run SpoolHero is with Docker Compose:
+Install Docker with Compose, clone this fork, and run:
 
-```bash
+```sh
 git clone https://github.com/Kaskobiii/SpoolHero.git
 cd SpoolHero
+```
+
+Create `.env` containing a database password:
+
+```dotenv
+MYSQL_ROOT_PASSWORD=choose-a-database-password
+```
+
+Then start the application:
+
+```sh
 docker compose up -d --build
 ```
 
-SpoolHero will be available at `http://localhost:5000`. A MySQL 8 database is included and configured automatically.
+Open `http://<server-ip>:5000`. A fresh installation creates a shared inventory automatically. No application credentials or JWT secret are needed. The database password is for the internal database connection.
 
-**Default admin account:**
-- Email: `admin@localhost`
-- Password: `admin`
+To move your inventory from the temporary local app, use **Settings → Backup & transfer → Export all**, then import that file on Docker. See [backup instructions](docs/BACKUP.md). After importing, open the imported project.
 
-Change the password immediately after first login.
+## Upgrade an existing installation
 
-### Configuration
+Back up the database volume before rebuilding. Existing inventory IDs, owner assignments, quantities and notes are retained. The original inventory identity is kept internally so favorites and relationships survive; old accounts are not exposed as sign-in options. Previously separate projects become available to everyone using this installation. Existing favorites are merged once into the shared collection.
 
-Set environment variables in a `.env` file next to `docker-compose.yml`:
+Old `/login` bookmarks redirect to the dashboard. The login, password, user-management and invitation APIs have been removed. The printer connection keeps its own private URL; an existing connection continues to work after an upgrade.
 
-```env
-MYSQL_ROOT_PASSWORD=YourSecureDatabasePassword
-JWT_SECRET_KEY=YourRandomStringAtLeast32Characters
-```
+## Development and verification
 
-The OpenFilamentDB catalog is enabled by default. To use only materials created in your own project, open **Admin → Settings → General** and turn off **Show OpenFilamentDB materials**. This setting is saved in the database and takes effect in material lists, searches, favorites, and spool material pickers. It also disables catalog syncing. Existing spools keep their material information, and turning the catalog back on restores the global materials without another import.
+Build with .NET 10 and MySQL/MariaDB. Set `ConnectionStrings__Default` for the database and run the server project. See [customizations](CUSTOMIZATIONS.md) for implementation details.
 
-### HTTPS (required for NFC on Android)
+The credential-free regression is `tests/shared_inventory_smoke.py`. It uses two disposable servers, checks legacy data preservation, shared favorites/CRUD/settings, removed account endpoints, browser-origin checks, printer WebSockets/usage and backup restore/collision handling. Tests for earlier authenticated versions are retained as historical fixtures; their login/permission expectations do not apply to this shared installation.
 
-SpoolHero supports NFC tag reading and writing via the Web NFC API. **Web NFC only works over HTTPS** (except on localhost). If you want to use NFC features from your phone, you must put a reverse proxy with SSL in front of SpoolHero.
-
-Example with **nginx** and Let's Encrypt:
-
-```nginx
-server {
-    listen 443 ssl;
-    server_name spoolhero.example.com;
-
-    ssl_certificate /etc/letsencrypt/live/spoolhero.example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/spoolhero.example.com/privkey.pem;
-
-    location / {
-        proxy_pass http://localhost:5000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Alternatively, you can use [Caddy](https://caddyserver.com/) which handles SSL certificates automatically:
-
-```
-spoolhero.example.com {
-    reverse_proxy localhost:5000
-}
-```
-
-## Manual Setup (without Docker)
-
-### Requirements
-
-- .NET 10.0 Runtime
-- MySQL 8.0 or MariaDB 10.6+
-- A reverse proxy (Apache or nginx recommended)
-
-### Installation
-
-Download the latest release zip from the [Releases](https://github.com/Fewiel/SpoolHero/releases) page and extract it to your server. Then create an `appsettings.json` based on the included `appsettings.example.json`:
-
-```json
-{
-  "ConnectionStrings": {
-    "Default": "Server=localhost;Port=3306;Database=SpoolManager;User=spoolmanager;Password=YOUR_DB_PASSWORD;"
-  },
-  "Jwt": {
-    "SecretKey": "at-least-32-characters-random-string"
-  }
-}
-```
-
-The database schema is created automatically on first start via FluentMigrator.
-
-A default admin account is created on first start:
-- Email: `admin@localhost`
-- Password: `admin`
-
-Change the password immediately after first login.
-
-For a full installation guide including Apache reverse proxy and Let's Encrypt, see [INSTALL.md](INSTALL.md).
-
-## Contributing
-
-Pull requests are welcome. Please keep changes focused and describe what you changed and why.
-
-For larger features, open an issue first to discuss the approach.
-
-## Roadmap
-
-- Klipper integration (read/write spool data directly from Klipper via Moonraker API)
-
-## License
-
-GNU Affero General Public License v3.0 (AGPL-3.0)
-
-Free to use, modify, and distribute. Any modifications — including running a modified version as a hosted service — must be made available under the same license. See [LICENSE](LICENSE) for details.
-
-### Customized printer connection
-
-This fork supports paxx12 U1 printer usage reporting through a project-scoped Spoolman-compatible connection. Open **Printer connection** in the account menu; see [setup instructions](docs/SPOOLMAN.md). Spool amounts use net grams, with separate original filament and empty reel weights. Owner/location buttons are designed for touch screens. This adapter implements the printer-facing subset of Spoolman, so third-party Spoolman applications are not automatically supported.
+This fork retains upstream's license and attribution. See [LICENSE](LICENSE).

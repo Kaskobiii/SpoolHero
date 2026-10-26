@@ -79,3 +79,11 @@ The upstream build emits dependency vulnerability warnings and an existing unawa
 A two-instance transfer test is available in `tests/inventory_backup_smoke.py`. Run it only against two disposable instances using the source/destination URL and credential variables described at its top. It checks complete inventory roundtrips, Unicode, images, retained NFC IDs, collision protection, malformed files, and transaction rollback. Optional explicitly named test databases enable real mid-restore failure injection.
 
 The printer integration regression in `tests/spoolman_compat_smoke.py` requires two disposable servers. It tests the native paxx12 field/UID contract, Moonraker WebSocket keepalive/events, concurrent and fractional usage, grams validation, stale edits, token scope/revocation and backup preservation of numeric ID high-water marks. Actual hardware verification is pending until the printer is installed.
+
+## Shared local installation (2026-10-26)
+
+This fork now opens directly into shared inventory with no login, registration, passwords, account menus, user administration, membership management, invitations or browser JWTs. Old account bookmarks redirect to the dashboard; removed APIs return JSON 404. A shared internal identity preserves existing foreign keys and the original favorites, merges prior favorites once, and administers every project. It is not an application credential. New installations create a shared project automatically.
+
+Settings, printer connection and backup/transfer remain available on desktop and mobile. All users who can reach the app can manage the inventory and settings. Browser requests from unrelated origins cannot mutate the API; normal same-origin browser and native printer requests continue to work. No JWT configuration is required in Docker or the temporary local supervisor.
+
+Verification: Release publish and `tests/shared_inventory_smoke.py` pass against two disposable MariaDB instances, including an upgrade fixture with separate legacy accounts/projects/favorites, anonymous access/CRUD/settings, removed account routes, backup preservation and printer WebSocket/usage reporting. Earlier authenticated smoke tests are historical and no longer describe this fork's permissions.

@@ -1,16 +1,12 @@
-using System.Security.Claims;
-using System.Text;
 using FluentMigrator.Runner;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.IdentityModel.Tokens;
 using SpoolManager.Infrastructure;
 using SpoolManager.Infrastructure.Data;
 using SpoolManager.Infrastructure.Migrations;
 using SpoolManager.Infrastructure.Repositories;
 using SpoolManager.Infrastructure.Services;
 using SpoolManager.Server.Filters;
-using SpoolManager.Server.Middleware;
 using SpoolManager.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,7 +39,6 @@ builder.Services.AddScoped<IOrcaExportService, OrcaExportService>();
 builder.Services.AddScoped<ISuggestionRepository, SuggestionRepository>();
 builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 builder.Services.AddHttpClient<IOfdSyncService, OfdSyncService>();
-builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
@@ -57,49 +52,12 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHostedService<NotificationBackgroundService>();
 
 builder.Services.AddScoped<ProjectAuthFilter>();
-builder.Services.AddSingleton<LoginRateLimiter>();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!))
-        };
-
-        options.Events = new JwtBearerEvents
-        {
-            OnTokenValidated = async context =>
-            {
-                var userIdClaim = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var tokenVersionClaim = context.Principal?.FindFirst("token_version")?.Value;
-
-                if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
-                {
-                    context.Fail("Invalid token.");
-                    return;
-                }
-
-                if (tokenVersionClaim != null && int.TryParse(tokenVersionClaim, out var tokenVersion))
-                {
-                    var userRepo = context.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
-                    var user = await userRepo.GetByIdAsync(userId);
-                    if (user == null || user.TokenVersion != tokenVersion)
-                    {
-                        context.Fail("Token has been revoked.");
-                        return;
-                    }
-                }
-            }
-        };
-    });
+builder.Services.AddAuthentication("LocalInventory")
+    .AddScheme<AuthenticationSchemeOptions, LocalInventoryAuthenticationHandler>("LocalInventory", _ => { });
+// Initialized after migrations, before requests can be served.
+LocalInventoryIdentity? sharedInventory = null;
+builder.Services.AddSingleton(_ => sharedInventory!);
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
@@ -114,20 +72,9 @@ using (var scope = app.Services.CreateScope())
     var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
     runner.MigrateUp();
 
-    var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-    if (await userRepo.GetCountAsync() == 0)
-    {
-        var admin = new AppUser
-        {
-            Username = "admin",
-            Email = "admin@localhost",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin"),
-            IsPlatformAdmin = true,
-            IsSuperAdmin = true,
-            CreatedAt = DateTime.UtcNow
-        };
-        await userRepo.CreateAsync(admin);
-    }
+    sharedInventory = await LocalInventoryIdentity.InitializeAsync(
+        scope.ServiceProvider.GetRequiredService<SpoolManagerDb>(),
+        scope.ServiceProvider.GetRequiredService<ISiteSettingsRepository>());
 }
 
 app.UseResponseCompression();
@@ -153,8 +100,21 @@ app.MapGet("/favicon.ico", async (ISiteSettingsRepository settings, HttpContext 
 app.UseStaticFiles();
 
 app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(10), KeepAliveTimeout = TimeSpan.FromSeconds(10) });
+// Old bookmarked account URLs lead directly to the inventory.
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value?.TrimEnd('/').ToLowerInvariant() ?? "";
+    if (HttpMethods.IsGet(context.Request.Method) && new[] { "/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/settings/account", "/settings/password", "/admin/users" }.Contains(path))
+    { context.Response.Redirect("/"); return; }
+    // Prevent unrelated websites from issuing browser mutations against this LAN app.
+    if (context.Request.Path.StartsWithSegments("/api") &&
+        ((!HttpMethods.IsGet(context.Request.Method) && !HttpMethods.IsHead(context.Request.Method) && !HttpMethods.IsOptions(context.Request.Method)) || context.WebSockets.IsWebSocketRequest) &&
+        context.Request.Headers.TryGetValue("Origin", out var origin) &&
+        (!Uri.TryCreate(origin.ToString(), UriKind.Absolute, out var uri) || !string.Equals(uri.Authority, context.Request.Host.Value, StringComparison.OrdinalIgnoreCase)))
+    { context.Response.StatusCode = 403; await context.Response.WriteAsJsonAsync(new { message = "Cross-origin changes are not allowed." }); return; }
+    await next(context);
+});
 app.UseAuthentication();
-app.UseMiddleware<UserActivityMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
@@ -177,6 +137,8 @@ if (!File.Exists(indexHtmlPath))
 }
 app.MapFallback(async (HttpContext ctx) =>
 {
+    if (ctx.Request.Path.StartsWithSegments("/api"))
+    { ctx.Response.StatusCode = 404; await ctx.Response.WriteAsJsonAsync(new { message = "Not found." }); return; }
     if (!File.Exists(indexHtmlPath))
     {
         ctx.Response.StatusCode = 404;

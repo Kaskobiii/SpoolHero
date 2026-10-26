@@ -21,7 +21,6 @@ builder.Services.AddScoped<TagService>();
 builder.Services.AddScoped<InventoryService>();
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<BackupService>();
-builder.Services.AddScoped<InvitationService>();
 builder.Services.AddScoped<AdminMaterialService>();
 builder.Services.AddScoped<AuditLogService>();
 builder.Services.AddScoped<NfcService>();

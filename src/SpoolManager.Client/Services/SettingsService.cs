@@ -11,11 +11,11 @@ public class SettingsService
     public SettingsService(HttpClient http) => _http = http;
 
     public Task<NotificationPrefsDto?> GetNotificationPrefsAsync() =>
-        _http.GetFromJsonAsync<NotificationPrefsDto>("api/auth/notifications");
+        _http.GetFromJsonAsync<NotificationPrefsDto>("api/local/notifications");
 
     public Task<HttpResponseMessage> SaveNotificationPrefsAsync(NotificationPrefsDto dto) =>
-        _http.PutAsJsonAsync("api/auth/notifications", dto);
+        _http.PutAsJsonAsync("api/local/notifications", dto);
 
     public Task<HttpResponseMessage> UpdateLanguageAsync(string lang) =>
-        _http.PutAsJsonAsync("api/auth/language", new SetLanguageRequest { Language = lang });
+        _http.PutAsJsonAsync("api/local/language", new SetLanguageRequest { Language = lang });
 }

@@ -17,18 +17,6 @@ else
             <i class="bi bi-sliders me-2"></i>@L["admin.settings.general.title"]
         </div>
         <div class="card-body">
-            <div class="d-flex align-items-center justify-content-between gap-3">
-                <div>
-                    <div class="fw-semibold">@L["admin.settings.general.landing.label"]</div>
-                    <div class="text-muted small">@L["admin.settings.general.landing.hint"]</div>
-                </div>
-                <div class="form-check form-switch mb-0">
-                    <input class="form-check-input" type="checkbox" id="landingEnabled"
-                           @bind="_landingEnabled"
-                           @bind:after="SaveLandingPageAsync" />
-                    <label class="form-check-label" for="landingEnabled"></label>
-                </div>
-            </div>
             @if (_materialCatalog != null)
             {
                 <div class="d-flex align-items-center justify-content-between gap-3 border-top mt-3 pt-3">

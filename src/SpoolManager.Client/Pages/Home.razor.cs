@@ -33,11 +33,6 @@ public partial class Home : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        if (!Auth.IsAuthenticated)
-        {
-            Nav.NavigateTo("/login", replace: true);
-            return;
-        }
         _showOnboarding = Auth.CurrentUser?.DashboardOnboardingDismissed != true;
         await LoadDataAsync();
     }

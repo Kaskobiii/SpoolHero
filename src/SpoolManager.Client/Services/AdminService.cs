@@ -11,18 +11,6 @@ public class AdminService
 
     public AdminService(HttpClient http) => _http = http;
 
-    public Task<List<AdminUserDto>?> GetUsersAsync() =>
-        _http.GetFromJsonAsync<List<AdminUserDto>>("api/admin/users");
-
-    public Task<HttpResponseMessage> SetAdminAsync(Guid id, bool isAdmin) =>
-        _http.PutAsJsonAsync($"api/admin/users/{id}/admin", new { isAdmin });
-
-    public Task<HttpResponseMessage> DeleteUserAsync(Guid id) =>
-        _http.DeleteAsync($"api/admin/users/{id}");
-
-    public Task<HttpResponseMessage> ResetDashboardOnboardingAsync(Guid id) =>
-        _http.PutAsJsonAsync($"api/admin/users/{id}/onboarding/reset", new { });
-
     public Task<AdminStatsDto?> GetStatsAsync() =>
         _http.GetFromJsonAsync<AdminStatsDto>("api/admin/stats");
 
@@ -84,8 +72,6 @@ public class AdminService
     public Task<HttpResponseMessage> DeleteFaviconAsync() =>
         _http.DeleteAsync("api/admin/settings/favicon");
 
-    public Task<HttpResponseMessage> SetLandingPageEnabledAsync(bool enabled) =>
-        _http.PutAsJsonAsync("api/admin/settings/landing-page", new SetLandingPageRequest { Enabled = enabled });
 
     public Task<MaterialCatalogSettingsDto?> GetMaterialCatalogSettingsAsync() =>
         _http.GetFromJsonAsync<MaterialCatalogSettingsDto>("api/admin/settings/material-catalog");

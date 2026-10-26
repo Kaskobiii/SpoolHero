@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
 namespace SpoolManager.Client.Services;
 
@@ -33,7 +34,11 @@ public class LocalizationService
     {
         try
         {
-            var dict = await _http.GetFromJsonAsync<Dictionary<string, string>>($"i18n/{lang}.json");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"i18n/{lang}.json");
+            request.SetBrowserRequestCache(BrowserRequestCache.NoStore);
+            using var response = await _http.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var dict = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
             if (dict != null)
             {
                 _strings = dict;
