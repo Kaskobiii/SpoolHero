@@ -1,0 +1,6 @@
+@page "/settings/printer-integration"
+@inject NavigationManager Navigation
+
+@code {
+    protected override void OnInitialized() => Navigation.NavigateTo("/printers/connection", replace: true);
+}

@@ -124,7 +124,6 @@ else
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="/settings/notifications"><i class="bi bi-bell me-2"></i>@L["settings.notifications.title"]</a></li>
-                            <li><NavLink class="dropdown-item" href="/settings/printer-integration"><i class="bi bi-plug me-2"></i>@L["nav.printer.connection"]</NavLink></li>
                             <li><NavLink class="dropdown-item" href="/backup"><i class="bi bi-cloud-arrow-down me-2"></i>@L["backup.title"]</NavLink></li>
                         </ul>
                     </li>
@@ -223,11 +222,6 @@ else
                     <a class="btn btn-outline-secondary w-100" href="/settings/notifications" @onclick="CloseOffcanvas">
                         <i class="bi bi-bell me-2"></i>@L["settings.notifications.title"]
                     </a>
-                </li>
-                <li class="nav-item mt-1">
-                    <NavLink class="btn btn-outline-secondary w-100" href="/settings/printer-integration" @onclick="CloseOffcanvas">
-                        <i class="bi bi-plug me-2"></i>@L["nav.printer.connection"]
-                    </NavLink>
                 </li>
                 <li class="nav-item mt-1">
                     <NavLink class="btn btn-outline-secondary w-100" href="/backup" @onclick="CloseOffcanvas">

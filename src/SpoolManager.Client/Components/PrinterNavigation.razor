@@ -1,0 +1,10 @@
+@inject LocalizationService L
+
+<nav class="nav nav-pills flex-wrap gap-2 mb-4" aria-label="@L["nav.printers"]">
+    <NavLink class="nav-link d-flex align-items-center" style="min-height:44px" href="/printers" Match="NavLinkMatch.All">
+        <i class="bi bi-printer me-2" aria-hidden="true"></i>@L["nav.printers"]
+    </NavLink>
+    <NavLink class="nav-link d-flex align-items-center" style="min-height:44px" href="/printers/connection">
+        <i class="bi bi-plug me-2" aria-hidden="true"></i>@L["nav.printer.connection"]
+    </NavLink>
+</nav>

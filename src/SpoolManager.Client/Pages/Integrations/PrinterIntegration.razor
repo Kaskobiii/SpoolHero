@@ -1,4 +1,4 @@
-@page "/settings/printer-integration"
+@page "/printers/connection"
 @implements IDisposable
 @using SpoolManager.Shared.DTOs.Integrations
 @inject HttpClient Http
@@ -9,6 +9,7 @@
 
 <PageTitle>@L["nav.printer.connection"] – @L["app.name"]</PageTitle>
 <div class="page-header"><h1><i class="bi bi-plug me-2" aria-hidden="true"></i>@L["nav.printer.connection"]</h1></div>
+<PrinterNavigation />
 <p class="text-muted">@L["integration.description"]</p>
 @if (Project.CurrentProject?.MyRole != "admin")
 {
