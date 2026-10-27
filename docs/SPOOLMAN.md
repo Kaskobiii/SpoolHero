@@ -11,7 +11,7 @@ not run a second inventory or a separate Spoolman database.
    intend to print. These values convert the printer's reported filament
    length to estimated grams. Missing values block length consumption with
    an actionable error; SpoolHero does not guess a material density.
-2. In the selected SpoolHero project, open **Locations → Printers → Printer connection** and enable the connection. Copy the complete private URL.
+2. In the selected SpoolHero project, open **Locations → Printers → select your printer → Printer connection** and enable the connection. Copy the complete private URL.
    It is displayed once. Generating a replacement URL revokes the old one.
 3. Deploy SpoolHero to a machine reachable from the printer. Use its LAN
    hostname or IP address and published Docker port in the URL; `localhost`

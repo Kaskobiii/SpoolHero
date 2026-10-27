@@ -9,8 +9,6 @@
     </button>
 </div>
 
-<PrinterNavigation />
-
 @if (_loading)
 {
     <div class="text-center py-5"><div class="spinner-border"></div></div>
@@ -49,7 +47,11 @@ else
                                  style="height:120px; object-fit:cover;" />
                         }
                         <div class="card-body">
-                            <h6 class="card-title mb-1">@p.Name</h6>
+                            <h6 class="card-title mb-1">
+                                <a class="d-flex align-items-center justify-content-between gap-2 py-2 text-break" style="min-height:44px" href="@($"/printers/{p.Id}")">
+                                    <span>@p.Name</span><i class="bi bi-chevron-right flex-shrink-0" aria-hidden="true"></i>
+                                </a>
+                            </h6>
                             @if (p.Notes != null)
                             {
                                 <p class="text-muted small mb-2">@p.Notes</p>

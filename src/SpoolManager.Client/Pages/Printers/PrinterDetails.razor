@@ -1,0 +1,47 @@
+@page "/printers/{Id:guid}"
+@implements IDisposable
+@inject PrinterService Printers
+@inject ProjectService Project
+@inject LocalizationService L
+
+<PageTitle>@(_printer?.Name ?? L["nav.printers"]) – @L["app.name"]</PageTitle>
+<a href="/printers" class="btn btn-outline-secondary mb-3"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>@L["nav.printers"]</a>
+@if (_loading)
+{
+    <div class="spinner-border" role="status"><span class="visually-hidden">@L["common.loading"]</span></div>
+}
+else if (_printer == null)
+{
+    <div class="alert alert-info">@L["common.not.found"]</div>
+}
+else
+{
+    <div class="page-header"><h1 class="text-break"><i class="bi bi-printer me-2" aria-hidden="true"></i>@_printer.Name</h1></div>
+    @if (!string.IsNullOrWhiteSpace(_printer.Notes))
+    {
+        <p class="text-muted text-break">@_printer.Notes</p>
+    }
+    <SpoolManager.Client.Pages.Integrations.PrinterIntegration @key="Project.CurrentProject?.Id" />
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private PrinterDto? _printer;
+    private bool _loading = true;
+    protected override void OnInitialized() => Project.OnProjectChanged += ProjectChanged;
+    protected override Task OnParametersSetAsync() => LoadAsync();
+    private void ProjectChanged() => _ = InvokeAsync(LoadAsync);
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _printer = null;
+        try
+        {
+            if (Project.CurrentProject != null)
+                _printer = (await Printers.GetAllAsync())?.FirstOrDefault(p => p.Id == Id);
+        }
+        catch (HttpRequestException) { }
+        finally { _loading = false; }
+    }
+    public void Dispose() => Project.OnProjectChanged -= ProjectChanged;
+}

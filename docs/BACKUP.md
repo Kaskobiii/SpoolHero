@@ -11,7 +11,7 @@ Open **Settings → Backup & transfer**, or **Export all** at the top of the Spo
 3. Open **Backup & transfer** and choose the saved file.
 4. Check the counts, optionally restore the OpenFilamentDB preference, then click **Import backup**.
 5. Click **Open imported inventory** and verify your spools before retiring the local installation.
-6. Create a new private address in **Locations → Printers → Printer connection** and update the printer's Spoolman URL when the printer is ready.
+6. Create a new private address in **Locations → Printers → select your printer → Printer connection** and update the printer's Spoolman URL when the printer is ready.
 
 Imports create the saved projects and preserve their IDs and relationships. Conflicting inventory IDs reject the entire import without overwriting data. A fresh installation is the easiest destination. A rejected import leaves the inventory unchanged.
 

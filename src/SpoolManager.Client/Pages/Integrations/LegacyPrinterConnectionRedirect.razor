@@ -1,6 +1,14 @@
 @page "/settings/printer-integration"
+@page "/printers/connection"
 @inject NavigationManager Navigation
+@inject PrinterService Printers
 
 @code {
-    protected override void OnInitialized() => Navigation.NavigateTo("/printers/connection", replace: true);
+    protected override async Task OnInitializedAsync()
+    {
+        List<PrinterDto>? printers = null;
+        try { printers = await Printers.GetAllAsync(); }
+        catch (HttpRequestException) { }
+        Navigation.NavigateTo(printers?.Count == 1 ? $"/printers/{printers[0].Id}" : "/printers", replace: true);
+    }
 }

@@ -1,4 +1,3 @@
-@page "/printers/connection"
 @implements IDisposable
 @using SpoolManager.Shared.DTOs.Integrations
 @inject HttpClient Http
@@ -7,9 +6,7 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
-<PageTitle>@L["nav.printer.connection"] – @L["app.name"]</PageTitle>
-<div class="page-header"><h1><i class="bi bi-plug me-2" aria-hidden="true"></i>@L["nav.printer.connection"]</h1></div>
-<PrinterNavigation />
+<h2 class="h4 mt-4 mb-3"><i class="bi bi-plug me-2" aria-hidden="true"></i>@L["nav.printer.connection"]</h2>
 <p class="text-muted">@L["integration.description"]</p>
 @if (Project.CurrentProject?.MyRole != "admin")
 {
