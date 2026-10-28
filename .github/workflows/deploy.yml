@@ -27,6 +27,7 @@ jobs:
           bash -n scripts/*.sh
           python3 tests/docker_scripts_smoke.py
           python3 tests/updater_smoke.py
+          bash tests/caddy_https_smoke.sh
           docker build -f deploy/updater/Dockerfile -t spoolhero-updater:ci .
           docker run --rm --entrypoint docker spoolhero-updater:ci compose version
       - name: Build test image

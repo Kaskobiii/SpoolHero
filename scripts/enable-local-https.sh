@@ -11,6 +11,9 @@ for octet in "$a" "$b" "$c" "$d"; do
 done
 mkdir -p local-https/public
 cat > local-https/Caddyfile <<CADDY
+{
+    default_sni $ip
+}
 https://$ip {
     tls internal
     reverse_proxy app:5000
