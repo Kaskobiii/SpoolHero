@@ -32,7 +32,9 @@ public partial class LocationOverview
         var spt = Spools.GetAllAsync();
         await Task.WhenAll(pt, st, dt, spt);
         _printers = await pt ?? [];
-        _locations = await st ?? [];
+        _locations = (await st ?? [])
+            .OrderBy(location => string.Equals(location.Name.Trim(), "Oöppnat", StringComparison.OrdinalIgnoreCase))
+            .ToList();
         _dryers = await dt ?? [];
         _spools = await spt ?? [];
         _loading = false;

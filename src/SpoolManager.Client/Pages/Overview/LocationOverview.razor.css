@@ -1,0 +1,27 @@
+.overview-group-heading {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    min-height: 44px;
+    cursor: pointer;
+    list-style: none;
+}
+.overview-location > summary {
+    min-height: 44px;
+    cursor: pointer;
+    list-style: none;
+}
+summary::-webkit-details-marker {
+    display: none;
+}
+.overview-chevron {
+    flex-shrink: 0;
+}
+.overview-group[open] > summary > .overview-chevron,
+.overview-location[open] > summary > .overview-chevron {
+    transform: rotate(90deg);
+}
+.overview-location:not([open]) > summary {
+    border-bottom: 0;
+    border-radius: var(--bs-card-border-radius);
+}
