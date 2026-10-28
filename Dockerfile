@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY SpoolManager.sln ./
@@ -14,6 +14,9 @@ RUN dotnet publish src/SpoolManager.Server/SpoolManager.Server.csproj -c Release
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
+ARG REVISION=unknown
+ENV SPOOLHERO_REVISION=$REVISION
+LABEL org.opencontainers.image.revision=$REVISION
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 

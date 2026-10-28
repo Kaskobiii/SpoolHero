@@ -1,0 +1,84 @@
+@page "/settings/updates"
+@implements IDisposable
+@using SpoolManager.Shared.DTOs.Updates
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Updates – SpoolHero</PageTitle>
+<div class="page-header"><h1><i class="bi bi-arrow-repeat me-2" aria-hidden="true"></i>Updates</h1></div>
+<div class="card"><div class="card-body">
+    <h2 class="h5">SpoolHero updates</h2>
+    <p>Check for a newer Docker image and install it here. Inventory is backed up before installing. Run updates between prints.</p>
+    @if (_status != null)
+    {
+        <dl class="row">
+            <dt class="col-12 col-sm-4">Installed version</dt><dd class="col-12 col-sm-8 text-break font-monospace">@Version(_status.CurrentVersion)</dd>
+            @if (!string.IsNullOrEmpty(_status.LatestVersion))
+            { <dt class="col-12 col-sm-4">Published version</dt><dd class="col-12 col-sm-8 text-break font-monospace">@Version(_status.LatestVersion)</dd> }
+        </dl>
+        <div class="alert @(_status.Phase == "failed" ? "alert-danger" : "alert-info")" role="status">
+            @if (_status.Busy) { <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span> }
+            @_status.Message
+        </div>
+    }
+    @if (_reconnecting)
+    { <div class="alert alert-info" role="status">Waiting for SpoolHero to restart. This page will reconnect automatically.</div> }
+    @if (_error != null) { <div class="alert alert-danger" role="alert">@_error</div> }
+    <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-primary" disabled="@(_working || _status?.Busy == true || _status?.Supported != true)" @onclick='() => ActionAsync("check")'>Check for updates</button>
+        <button class="btn btn-primary" disabled="@(_working || _status?.Busy == true || _status?.Supported != true || _status?.Available != true)" @onclick='() => ActionAsync("install")'>Update now</button>
+        @if (_status?.Phase == "complete")
+        { <button class="btn btn-outline-secondary" @onclick="Reload">Reload updated app</button> }
+    </div>
+</div></div>
+
+@code {
+    private UpdateStatusDto? _status;
+    private string? _error;
+    private bool _working, _reconnecting;
+    private readonly CancellationTokenSource _stop = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshAsync();
+        _ = PollAsync();
+    }
+    private static string Version(string value) => value.Length == 40 ? value[..12] : value;
+    private async Task PollAsync()
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(4));
+            while (await timer.WaitForNextTickAsync(_stop.Token))
+                await InvokeAsync(async () => { await RefreshAsync(); StateHasChanged(); });
+        }
+        catch (OperationCanceledException) { }
+    }
+    private async Task RefreshAsync()
+    {
+        try
+        {
+            var status = await Http.GetFromJsonAsync<UpdateStatusDto>("api/updates", _stop.Token);
+            if (status != null) _status = status;
+            _reconnecting = false;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
+        { if (!_stop.IsCancellationRequested) _reconnecting = true; }
+    }
+    private async Task ActionAsync(string action)
+    {
+        if (_working || _status?.Busy == true) return;
+        _working = true;
+        _error = null;
+        try
+        {
+            using var response = await Http.PostAsync("api/updates/" + action, null, _stop.Token);
+            if (response.IsSuccessStatusCode) _status = await response.Content.ReadFromJsonAsync<UpdateStatusDto>(_stop.Token);
+            else _error = "The updater could not start this operation. Refresh the status and try again.";
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        { if (!_stop.IsCancellationRequested) _reconnecting = true; }
+        finally { _working = false; }
+    }
+    private void Reload() => Navigation.NavigateTo("/settings/updates", forceLoad: true);
+    public void Dispose() { _stop.Cancel(); }
+}

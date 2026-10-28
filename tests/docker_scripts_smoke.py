@@ -15,7 +15,9 @@ with open(os.environ['CALLS'], 'a') as f: f.write(json.dumps(args)+'\\n')
 scenario=os.environ.get('SCENARIO','ok')
 if args[:3]==['compose','ps','-q']: print('container')
 if args[:3]==['compose','pull','app'] and scenario=='pull-fail': sys.exit(1)
-if args[:3]==['compose','images','-q']: print('sha256:previous-image')
+if args[:3]==['compose','images','-q']:
+    count=sum(1 for line in open(os.environ['CALLS']) if json.loads(line)[:3]==args[:3])
+    print('sha256:previous-image' if count==1 or scenario=='unchanged' else 'sha256:new-image')
 if args[:3]==['compose','config','--images']: print('ghcr.io/kaskobiii/spoolhero:latest')
 if args[:3]==['compose','exec','-T']:
     if scenario=='backup-fail': print('partial'); sys.exit(1)
@@ -29,7 +31,8 @@ class UpdateTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         root = Path(temporary.name)
         (root/'scripts').mkdir()
-        shutil.copy(ROOT/'scripts'/script, root/'scripts'/script)
+        for item in ('install.sh', 'update.sh', 'enable-updater.sh'):
+            shutil.copy(ROOT/'scripts'/item, root/'scripts'/item)
         shutil.copy(ROOT/'docker-compose.yml', root/'docker-compose.yml')
         if script == 'update.sh': (root/'.env').write_text('MYSQL_ROOT_PASSWORD=fixture-only\n')
         (root/'bin').mkdir()
@@ -53,6 +56,12 @@ class UpdateTests(unittest.TestCase):
         self.assertNotIn(['compose', 'down'], calls)
         self.assertEqual(next(root.glob('backups/*/.env')).stat().st_mode & 0o777, 0o600)
 
+    def test_unchanged_image_is_reported_honestly(self):
+        _, result, _ = self.run_script('unchanged')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('No newer image was published', result.stdout)
+        self.assertNotIn('Update complete', result.stdout)
+
     def test_failed_download_does_not_stop_app(self):
         _, result, calls = self.run_script('pull-fail')
         self.assertNotEqual(result.returncode, 0)
@@ -75,6 +84,7 @@ class UpdateTests(unittest.TestCase):
         root, result, _ = self.run_script('ok', 'install.sh')
         self.assertEqual(result.returncode, 0, result.stderr)
         env = (root/'.env').read_text()
+        self.assertRegex(env, r'SPOOLHERO_UPDATER_TOKEN=[a-f0-9]{64}\n')
         self.assertRegex(env, r'MYSQL_ROOT_PASSWORD=[a-f0-9]{64}\n')
         self.assertEqual((root/'.env').stat().st_mode & 0o777, 0o600)
 

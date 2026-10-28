@@ -30,13 +30,15 @@ Start the published fork image with:
 bash scripts/install.sh
 ```
 
-Open `http://<server-ip>:5000`, then import your temporary app's **Export all** file under **Settings → Backup & transfer**. Update later with:
+Open `http://<server-ip>:5000`, then import your temporary app's **Export all** file under **Settings → Backup & transfer**. Docker installs include **Settings → Updates** for future updates. The terminal fallback is:
 
 ```sh
 bash scripts/update.sh
 ```
 
 The update command backs up the database and replaces the app container while retaining saved inventory. See the [Docker installation and update guide](docs/DOCKER.md), including the one-time GitHub Actions/package visibility setup and recovery instructions.
+
+For private HTTPS and Android Web NFC without a domain, see [local HTTPS setup](docs/LOCAL_HTTPS.md). Existing Docker installs enable the new update service once using `bash scripts/enable-updater.sh` after updating the source checkout.
 
 ## Upgrade an existing installation
 

@@ -30,4 +30,11 @@ if ! docker compose up -d --no-deps --no-build --pull never --wait --wait-timeou
   printf 'Update did not become healthy. Backup: %s\nCheck docker compose logs app; see docs/DOCKER.md for recovery.\n' "$backup" >&2
   exit 1
 fi
-printf '\nUpdate complete. Inventory and printer configuration retained.\nBackup saved to %s\n' "$backup"
+before_image=$(cat "$backup/previous-image.txt")
+after_image=$(docker compose images -q app)
+if [[ "$before_image" == "$after_image" ]]; then
+  printf '\nNo newer image was published. The running image is unchanged. A GitHub build may still be running.\n'
+else
+  printf '\nUpdate complete. Inventory and printer configuration retained.\n'
+fi
+printf 'Backup saved to %s\n' "$backup"

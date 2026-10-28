@@ -23,9 +23,24 @@ services:
     environment:
       ConnectionStrings__Default: "Server=db;Port=3306;Database=SpoolManager;User=root;Password=${MYSQL_ROOT_PASSWORD:?Create .env using scripts/install.sh first};"
       ASPNETCORE_URLS: http://+:5000
+      Updates__Url: http://updater:8091
+      Updates__Token: ${SPOOLHERO_UPDATER_TOKEN:-}
     depends_on:
       db:
         condition: service_healthy
+
+  updater:
+    profiles: [maintenance]
+    build:
+      context: .
+      dockerfile: deploy/updater/Dockerfile
+    restart: unless-stopped
+    environment:
+      SPOOLHERO_INSTALL_DIR: ${SPOOLHERO_INSTALL_DIR:-/installation}
+      SPOOLHERO_UPDATER_TOKEN: ${SPOOLHERO_UPDATER_TOKEN:-}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SPOOLHERO_INSTALL_DIR:-.}:${SPOOLHERO_INSTALL_DIR:-/installation}
 
 volumes:
   mysql_data:

@@ -28,7 +28,13 @@ On the temporary app use **Settings → Backup & transfer → Export all**. Impo
 
 All inventory, photos, branding and printer mappings are stored in MySQL's named `mysql_data` volume. Replacing the app container preserves this volume. The database has no published host port. No separate uploaded-file volume is required by this fork.
 
-## Update: one command
+## Update from SpoolHero
+
+Fresh installs include a private updater service. Open **Settings → Updates**, check for updates, then select **Update now**. Existing checkouts run `git pull --ff-only` and `bash scripts/enable-updater.sh` once to enable this. The service has Docker control inside the LXC and no published port.
+
+For Android NFC see [private local HTTPS](LOCAL_HTTPS.md).
+
+## Terminal update fallback
 
 In the same SpoolHero folder:
 

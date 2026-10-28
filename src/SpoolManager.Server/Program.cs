@@ -61,6 +61,7 @@ builder.Services.AddSingleton(_ => sharedInventory!);
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddHttpClient("updater", client => client.Timeout = TimeSpan.FromSeconds(8));
 
 builder.Services.AddResponseCompression(opts =>
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]));

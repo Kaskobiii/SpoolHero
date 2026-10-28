@@ -24,12 +24,16 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - name: Check deployment scripts
         run: |
-          bash -n scripts/install.sh scripts/update.sh
+          bash -n scripts/*.sh
           python3 tests/docker_scripts_smoke.py
+          python3 tests/updater_smoke.py
+          docker build -f deploy/updater/Dockerfile -t spoolhero-updater:ci .
+          docker run --rm --entrypoint docker spoolhero-updater:ci compose version
       - name: Build test image
         uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: REVISION=${{ github.sha }}
           load: true
           tags: spoolhero:ci
           cache-from: type=gha
@@ -71,6 +75,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: REVISION=${{ github.sha }}
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
